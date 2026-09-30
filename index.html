@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budgety - Flujo Nivelado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans pb-20">
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+        
+        <!-- Header & Resumen -->
+        <div class="bg-blue-600 text-white p-6 rounded-b-3xl shadow-md">
+            <h1 class="text-2xl font-bold mb-4">Budgety</h1>
+            <div class="bg-blue-700/50 p-4 rounded-xl">
+                <p class="text-sm opacity-90">Sobrante Libre Semanal</p>
+                <h2 class="text-3xl font-bold">$108.51</h2>
+                <div class="flex justify-between mt-3 text-xs border-t border-blue-500 pt-2">
+                    <span>Ahorro (40%): $43.40</span>
+                    <span>Deudas (40%): $43.40</span>
+                    <span>Gustos (20%): $21.71</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fijos -->
+        <div class="p-6 pb-2">
+            <h3 class="text-gray-800 font-bold mb-3 flex items-center">
+                <i data-lucide="lock" class="w-4 h-4 mr-2 text-gray-500"></i> Fijos Intocables
+            </h3>
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-600">Cuenta de Biles</span>
+                <span class="font-bold text-gray-800">$393.00</span>
+            </div>
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center">
+                <span class="text-sm text-gray-600">Fondo Auto (Marbete)</span>
+                <span class="font-bold text-gray-800">$15.00</span>
+            </div>
+        </div>
+
+        <!-- Bregables -->
+        <div class="p-6 pt-2" id="variables-container">
+            <h3 class="text-gray-800 font-bold mb-3 flex items-center mt-4">
+                <i data-lucide="sliders" class="w-4 h-4 mr-2 text-blue-500"></i> Variables / Bregables
+            </h3>
+            <!-- Generado por JS -->
+        </div>
+
+        <!-- Reset Button -->
+        <div class="p-6 text-center">
+            <button onclick="resetearSemana()" class="text-red-500 text-sm font-bold bg-red-50 px-4 py-2 rounded-full border border-red-200">
+                Reiniciar Semana
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Floating Action Button -->
+    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition">
+        <i data-lucide="plus" class="w-6 h-6"></i>
+    </button>
+
+    <!-- Modal Nuevo Gasto -->
+    <div id="modal" class="fixed inset-0 bg-black/50 hidden items-end justify-center z-50">
+        <div class="bg-white w-full max-w-md rounded-t-3xl p-6 shadow-2xl transition-transform transform translate-y-full" id="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold">Registrar Gasto</h3>
+                <button onclick="cerrarModal()" class="text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <label class="block text-sm text-gray-600 mb-1">Monto gastado</label>
+            <div class="relative mb-6">
+                <span class="absolute left-3 top-3 text-gray-500 font-bold">$</span>
+                <input type="number" id="monto" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 pl-8 text-lg font-bold focus:outline-none focus:border-blue-500" placeholder="0.00" step="0.01">
+            </div>
+
+            <label class="block text-sm text-gray-600 mb-2">Categoría</label>
+            <div class="grid grid-cols-2 gap-2 mb-6">
+                <button onclick="seleccionarCategoria('super')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">Súper ($68.75)</button>
+                <button onclick="seleccionarCategoria('comida')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">Comida ($43.30)</button>
+                <button onclick="seleccionarCategoria('gasolina')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">Gasolina ($15.00)</button>
+                <button onclick="seleccionarCategoria('subs')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">Gaming ($12.50)</button>
+            </div>
+
+            <button onclick="guardarGasto()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700">Restar del Presupuesto</button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        const categoriasBase = {
+            super: { nombre: 'Súper / Costco', limite: 68.75, gastado: 0, color: 'bg-emerald-500' },
+            comida: { nombre: 'Comida fuera', limite: 43.30, gastado: 0, color: 'bg-orange-500' },
+            gasolina: { nombre: 'Gasolina', limite: 15.00, gastado: 0, color: 'bg-indigo-500' },
+            subs: { nombre: 'Suscripciones', limite: 12.50, gastado: 0, color: 'bg-purple-500' }
+        };
+
+        let categorias = JSON.parse(localStorage.getItem('budgety_data')) || JSON.parse(JSON.stringify(categoriasBase));
+        let catSeleccionada = null;
+
+        function renderizarVariables() {
+            const container = document.getElementById('variables-container');
+            let html = '';
+            
+            for(let key in categorias) {
+                const cat = categorias[key];
+                const disponible = (cat.limite - cat.gastado).toFixed(2);
+                const porcentaje = Math.min((cat.gastado / cat.limite) * 100, 100);
+                const alertaRoja = disponible < 0 ? 'text-red-600 font-bold' : 'text-gray-800 font-bold';
+                const barraColor = disponible < 0 ? 'bg-red-500' : cat.color;
+
+                html += `
+                <div class="mb-4">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-sm font-bold text-gray-700">${cat.nombre}</span>
+                        <span class="text-sm ${alertaRoja}">$${disponible} <span class="text-xs text-gray-400 font-normal">de $${cat.limite}</span></span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                        <div class="${barraColor} h-2.5 rounded-full transition-all duration-500" style="width: ${porcentaje}%"></div>
+                    </div>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function abrirModal() {
+            document.getElementById('modal').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('modal-content').classList.remove('translate-y-full');
+            }, 10);
+            document.getElementById('monto').value = '';
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.replace('border-blue-500', 'border-transparent'));
+            catSeleccionada = null;
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-content').classList.add('translate-y-full');
+            setTimeout(() => {
+                document.getElementById('modal').style.display = 'none';
+            }, 300);
+        }
+
+        function seleccionarCategoria(key) {
+            catSeleccionada = key;
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.replace('border-blue-500', 'border-transparent'));
+            event.target.classList.replace('border-transparent', 'border-blue-500');
+        }
+
+        function guardarGasto() {
+            const monto = parseFloat(document.getElementById('monto').value);
+            if(isNaN(monto) || monto <= 0) return alert('Ingresa un monto válido');
+            if(!catSeleccionada) return alert('Selecciona una categoría');
+
+            categorias[catSeleccionada].gastado += monto;
+            localStorage.setItem('budgety_data', JSON.stringify(categorias));
+            renderizarVariables();
+            cerrarModal();
+        }
+
+        function resetearSemana() {
+            if(confirm('¿Estás seguro que quieres reiniciar todos tus consumos a cero para empezar una nueva semana?')) {
+                categorias = JSON.parse(JSON.stringify(categoriasBase));
+                localStorage.setItem('budgety_data', JSON.stringify(categorias));
+                renderizarVariables();
+            }
+        }
+
+        renderizarVariables();
+    </script>
+</body>
+</html>
