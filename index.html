@@ -8,18 +8,26 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans pb-20">
-    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg relative">
         
         <!-- Header & Resumen -->
         <div class="bg-blue-600 text-white p-6 rounded-b-3xl shadow-md">
-            <h1 class="text-2xl font-bold mb-4">Budgety</h1>
+            <div class="flex justify-between items-start mb-4">
+                <h1 class="text-2xl font-bold">Budgety</h1>
+                <button onclick="abrirConfig()" class="p-2 bg-blue-700 rounded-full hover:bg-blue-800 transition">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
             <div class="bg-blue-700/50 p-4 rounded-xl">
-                <p class="text-sm opacity-90">Sobrante Libre Semanal</p>
-                <h2 class="text-3xl font-bold">$108.51</h2>
+                <p class="text-sm opacity-90 flex justify-between">
+                    <span>Sobrante Libre Semanal</span>
+                    <span id="ingreso-display" class="font-bold border-b border-blue-400">Ingreso: $0.00</span>
+                </p>
+                <h2 id="sobrante-total" class="text-3xl font-bold">$0.00</h2>
                 <div class="flex justify-between mt-3 text-xs border-t border-blue-500 pt-2">
-                    <span>Ahorro (40%): $43.40</span>
-                    <span>Deudas (40%): $43.40</span>
-                    <span>Gustos (20%): $21.71</span>
+                    <span id="ahorro-meta">Ahorro (40%): $0.00</span>
+                    <span id="deudas-meta">Deudas (40%): $0.00</span>
+                    <span id="gustos-meta">Gustos (20%): $0.00</span>
                 </div>
             </div>
         </div>
@@ -31,11 +39,11 @@
             </h3>
             <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center mb-2">
                 <span class="text-sm text-gray-600">Cuenta de Biles</span>
-                <span class="font-bold text-gray-800">$393.00</span>
+                <span id="biles-display" class="font-bold text-gray-800">$0.00</span>
             </div>
             <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center">
                 <span class="text-sm text-gray-600">Fondo Auto (Marbete)</span>
-                <span class="font-bold text-gray-800">$15.00</span>
+                <span id="auto-display" class="font-bold text-gray-800">$0.00</span>
             </div>
         </div>
 
@@ -50,7 +58,7 @@
         <!-- Reset Button -->
         <div class="p-6 text-center">
             <button onclick="resetearSemana()" class="text-red-500 text-sm font-bold bg-red-50 px-4 py-2 rounded-full border border-red-200">
-                Reiniciar Semana
+                Reiniciar Semana a Cero
             </button>
         </div>
 
@@ -76,20 +84,73 @@
             </div>
 
             <label class="block text-sm text-gray-600 mb-2">Categoría</label>
-            <div class="grid grid-cols-2 gap-2 mb-6">
-                <button onclick="seleccionarCategoria('super')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">Súper ($68.75)</button>
-                <button onclick="seleccionarCategoria('comida')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">Comida ($43.30)</button>
-                <button onclick="seleccionarCategoria('gasolina')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">Gasolina ($15.00)</button>
-                <button onclick="seleccionarCategoria('subs')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">Gaming ($12.50)</button>
+            <div id="botones-categorias" class="grid grid-cols-2 gap-2 mb-6">
+                <!-- Generado dinámicamente -->
             </div>
 
             <button onclick="guardarGasto()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700">Restar del Presupuesto</button>
         </div>
     </div>
 
+    <!-- Modal Configuración -->
+    <div id="config-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-lg font-bold text-gray-800">Ajustes Semanales</h3>
+                <button onclick="cerrarConfig()" class="text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-blue-600 mb-1">Ingreso Semanal Neto</label>
+                    <input type="number" id="conf-ingreso" class="w-full border rounded-lg p-2 bg-gray-50" step="0.01">
+                </div>
+                
+                <div class="bg-gray-100 p-3 rounded-lg border">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Cuenta de Biles (Fijos)</label>
+                    <input type="number" id="conf-biles" class="w-full border rounded-lg p-2 bg-white mb-2" step="0.01">
+                    
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Fondo Auto</label>
+                    <input type="number" id="conf-auto" class="w-full border rounded-lg p-2 bg-white" step="0.01">
+                </div>
+
+                <div class="border-t pt-3">
+                    <h4 class="text-sm font-bold text-gray-800 mb-2">Límites Variables (Bregables)</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-gray-600">Súper</label>
+                            <input type="number" id="conf-lim-super" class="w-full border rounded-lg p-2 text-sm" step="0.01">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600">Comida Fuera</label>
+                            <input type="number" id="conf-lim-comida" class="w-full border rounded-lg p-2 text-sm" step="0.01">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600">Gasolina</label>
+                            <input type="number" id="conf-lim-gasolina" class="w-full border rounded-lg p-2 text-sm" step="0.01">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600">Suscripciones</label>
+                            <input type="number" id="conf-lim-subs" class="w-full border rounded-lg p-2 text-sm" step="0.01">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="guardarConfig()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl mt-6 hover:bg-emerald-700">Guardar Cambios</button>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
         
+        // Datos por defecto basados en tu auditoría inicial
+        const configBase = {
+            ingreso: 643.56,
+            biles: 393.00,
+            auto: 15.00
+        };
+
         const categoriasBase = {
             super: { nombre: 'Súper / Costco', limite: 68.75, gastado: 0, color: 'bg-emerald-500' },
             comida: { nombre: 'Comida fuera', limite: 43.30, gastado: 0, color: 'bg-orange-500' },
@@ -97,12 +158,41 @@
             subs: { nombre: 'Suscripciones', limite: 12.50, gastado: 0, color: 'bg-purple-500' }
         };
 
+        let configGlobal = JSON.parse(localStorage.getItem('budgety_config')) || JSON.parse(JSON.stringify(configBase));
         let categorias = JSON.parse(localStorage.getItem('budgety_data')) || JSON.parse(JSON.stringify(categoriasBase));
         let catSeleccionada = null;
 
-        function renderizarVariables() {
+        function calcularSobrante() {
+            let totalVariables = 0;
+            for(let key in categorias) {
+                totalVariables += parseFloat(categorias[key].limite);
+            }
+            
+            // Cero Dinero Fantasma: Ingreso - Fijos - Suma de Límites Variables
+            const sobrante = configGlobal.ingreso - configGlobal.biles - configGlobal.auto - totalVariables;
+            
+            document.getElementById('ingreso-display').innerText = `Ingreso: $${parseFloat(configGlobal.ingreso).toFixed(2)}`;
+            document.getElementById('biles-display').innerText = `$${parseFloat(configGlobal.biles).toFixed(2)}`;
+            document.getElementById('auto-display').innerText = `$${parseFloat(configGlobal.auto).toFixed(2)}`;
+            
+            document.getElementById('sobrante-total').innerText = `$${sobrante.toFixed(2)}`;
+            
+            if(sobrante > 0) {
+                document.getElementById('ahorro-meta').innerText = `Ahorro (40%): $${(sobrante * 0.4).toFixed(2)}`;
+                document.getElementById('deudas-meta').innerText = `Deudas (40%): $${(sobrante * 0.4).toFixed(2)}`;
+                document.getElementById('gustos-meta').innerText = `Gustos (20%): $${(sobrante * 0.2).toFixed(2)}`;
+            } else {
+                document.getElementById('ahorro-meta').innerText = "Ajusta tus gastos";
+                document.getElementById('deudas-meta').innerText = "Sobrante negativo";
+                document.getElementById('gustos-meta').innerText = "Revisa límites";
+            }
+        }
+
+        function renderizarUI() {
             const container = document.getElementById('variables-container');
-            let html = '';
+            const botones = document.getElementById('botones-categorias');
+            let htmlBarras = '';
+            let htmlBotones = '';
             
             for(let key in categorias) {
                 const cat = categorias[key];
@@ -111,7 +201,7 @@
                 const alertaRoja = disponible < 0 ? 'text-red-600 font-bold' : 'text-gray-800 font-bold';
                 const barraColor = disponible < 0 ? 'bg-red-500' : cat.color;
 
-                html += `
+                htmlBarras += `
                 <div class="mb-4">
                     <div class="flex justify-between items-end mb-1">
                         <span class="text-sm font-bold text-gray-700">${cat.nombre}</span>
@@ -121,18 +211,60 @@
                         <div class="${barraColor} h-2.5 rounded-full transition-all duration-500" style="width: ${porcentaje}%"></div>
                     </div>
                 </div>`;
+
+                htmlBotones += `
+                <button onclick="seleccionarCategoria('${key}')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">
+                    ${cat.nombre} ($${disponible})
+                </button>`;
             }
-            container.innerHTML = html;
+            container.innerHTML = htmlBarras;
+            botones.innerHTML = htmlBotones;
+            calcularSobrante();
         }
 
+        // Funciones de Configuración
+        function abrirConfig() {
+            document.getElementById('config-modal').style.display = 'flex';
+            document.getElementById('conf-ingreso').value = configGlobal.ingreso;
+            document.getElementById('conf-biles').value = configGlobal.biles;
+            document.getElementById('conf-auto').value = configGlobal.auto;
+            
+            document.getElementById('conf-lim-super').value = categorias.super.limite;
+            document.getElementById('conf-lim-comida').value = categorias.comida.limite;
+            document.getElementById('conf-lim-gasolina').value = categorias.gasolina.limite;
+            document.getElementById('conf-lim-subs').value = categorias.subs.limite;
+        }
+
+        function cerrarConfig() {
+            document.getElementById('config-modal').style.display = 'none';
+        }
+
+        function guardarConfig() {
+            configGlobal.ingreso = parseFloat(document.getElementById('conf-ingreso').value) || 0;
+            configGlobal.biles = parseFloat(document.getElementById('conf-biles').value) || 0;
+            configGlobal.auto = parseFloat(document.getElementById('conf-auto').value) || 0;
+
+            categorias.super.limite = parseFloat(document.getElementById('conf-lim-super').value) || 0;
+            categorias.comida.limite = parseFloat(document.getElementById('conf-lim-comida').value) || 0;
+            categorias.gasolina.limite = parseFloat(document.getElementById('conf-lim-gasolina').value) || 0;
+            categorias.subs.limite = parseFloat(document.getElementById('conf-lim-subs').value) || 0;
+
+            localStorage.setItem('budgety_config', JSON.stringify(configGlobal));
+            localStorage.setItem('budgety_data', JSON.stringify(categorias));
+            
+            renderizarUI();
+            cerrarConfig();
+        }
+
+        // Funciones de Gasto
         function abrirModal() {
             document.getElementById('modal').style.display = 'flex';
             setTimeout(() => {
                 document.getElementById('modal-content').classList.remove('translate-y-full');
             }, 10);
             document.getElementById('monto').value = '';
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.replace('border-blue-500', 'border-transparent'));
             catSeleccionada = null;
+            renderizarUI(); // Refrescar botones
         }
 
         function cerrarModal() {
@@ -155,19 +287,21 @@
 
             categorias[catSeleccionada].gastado += monto;
             localStorage.setItem('budgety_data', JSON.stringify(categorias));
-            renderizarVariables();
+            renderizarUI();
             cerrarModal();
         }
 
         function resetearSemana() {
-            if(confirm('¿Estás seguro que quieres reiniciar todos tus consumos a cero para empezar una nueva semana?')) {
-                categorias = JSON.parse(JSON.stringify(categoriasBase));
+            if(confirm('¿Estás seguro que quieres reiniciar todos tus consumos a cero? Tus límites y configuración se mantendrán.')) {
+                for(let key in categorias) {
+                    categorias[key].gastado = 0;
+                }
                 localStorage.setItem('budgety_data', JSON.stringify(categorias));
-                renderizarVariables();
+                renderizarUI();
             }
         }
 
-        renderizarVariables();
+        renderizarUI();
     </script>
 </body>
 </html>
