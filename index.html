@@ -3,84 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budgety - Control Semanal</title>
+    <title>Budgety - Control y Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .pb-safe { padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
+        .tab-active { color: #2563eb; font-weight: 900; }
+        .tab-inactive { color: #64748b; font-weight: 500; }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans pb-24">
-    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg relative">
+<body class="bg-slate-50 min-h-screen font-sans pb-24">
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg relative overflow-x-hidden">
         
-        <!-- Header & Balance en Vivo -->
-        <div class="bg-slate-900 text-white p-6 rounded-b-3xl shadow-xl">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-blue-400">Budgety</h1>
-                    <p class="text-xs text-slate-400">Flujo Semanal Activo</p>
+        <!-- ========================================== -->
+        <!-- TAB 1: DASHBOARD Y METAS                   -->
+        <!-- ========================================== -->
+        <div id="view-dash" class="block animate-fade-in">
+            <!-- Header Dashboard -->
+            <div class="bg-slate-900 text-white p-6 rounded-b-3xl shadow-xl">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-blue-400">Budgety</h1>
+                        <p class="text-xs text-slate-400">Dashboard Semanal</p>
+                    </div>
+                    <button onclick="abrirConfig()" class="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">
+                        <i data-lucide="settings" class="w-5 h-5 text-slate-300"></i>
+                    </button>
                 </div>
-                <button onclick="abrirConfig()" class="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">
-                    <i data-lucide="settings" class="w-5 h-5 text-slate-300"></i>
+                
+                <!-- El Metro (Gauge) -->
+                <div class="bg-white p-5 rounded-2xl shadow-inner text-center relative overflow-hidden">
+                    <h3 class="text-slate-800 font-black text-sm uppercase tracking-widest mb-1">Termómetro de Gastos</h3>
+                    <p class="text-xs text-slate-500 mb-4">Uso de tu presupuesto variable (Bregables)</p>
+                    
+                    <!-- Barra de 3 colores -->
+                    <div class="relative w-full h-6 bg-slate-200 rounded-full overflow-hidden flex">
+                        <div class="w-[60%] h-full bg-emerald-500"></div>
+                        <div class="w-[25%] h-full bg-amber-400"></div>
+                        <div class="w-[15%] h-full bg-red-500"></div>
+                        
+                        <!-- Marcador de Posición -->
+                        <div id="gauge-marker" class="absolute top-0 bottom-0 w-1.5 bg-slate-900 shadow-md transition-all duration-700 ease-out z-10 rounded-full" style="left: 0%;"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-[10px] font-bold text-slate-400 mt-2 uppercase">
+                        <span>Seguro (Verde)</span>
+                        <span>Alerta (Amarillo)</span>
+                        <span>Peligro (Rojo)</span>
+                    </div>
+
+                    <div class="mt-4 border-t border-slate-100 pt-3">
+                        <p class="text-3xl font-black text-slate-800" id="dash-porcentaje">0%</p>
+                        <p class="text-xs text-slate-500 font-bold" id="dash-texto-estado">¡Excelente inicio!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Metas 40/40/20 -->
+            <div class="p-6">
+                <h3 class="text-slate-800 font-black mb-4 flex items-center text-sm uppercase tracking-wider">
+                    <i data-lucide="target" class="w-5 h-5 mr-2 text-blue-500"></i> Metas: Regla 40/40/20
+                </h3>
+                
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Sobrante Libre -->
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-blue-600 uppercase">Sobrante Libre (Total)</p>
+                            <p class="text-2xl font-black text-blue-900" id="dash-sobrante">$0.00</p>
+                        </div>
+                        <i data-lucide="wallet" class="w-8 h-8 text-blue-300"></i>
+                    </div>
+
+                    <!-- Distribución -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-center">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Ahorro 40%</p>
+                            <p class="text-lg font-black text-emerald-600" id="dash-ahorro">$0.00</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-center">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Deudas 40%</p>
+                            <p class="text-lg font-black text-blue-600" id="dash-deuda">$0.00</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-center">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Gustos 20%</p>
+                            <p class="text-lg font-black text-purple-600" id="dash-gusto">$0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-slate-900 rounded-2xl text-white text-center">
+                    <p class="text-xs text-slate-400 mb-1">Balance Actual en Cuenta</p>
+                    <p class="text-3xl font-black" id="dash-balance">$0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: CALCULADORA Y CONTROL               -->
+        <!-- ========================================== -->
+        <div id="view-gastos" class="hidden animate-fade-in">
+            <!-- Header Mini -->
+            <div class="bg-slate-900 text-white p-6 rounded-b-3xl shadow-md flex justify-between items-center">
+                <h2 class="text-xl font-bold text-blue-400">Control de Gastos</h2>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-400 uppercase">Balance</p>
+                    <p class="text-xl font-black" id="calc-balance">$0.00</p>
+                </div>
+            </div>
+
+            <!-- Fijos -->
+            <div class="p-6 pb-2">
+                <h3 class="text-slate-800 font-black mb-3 text-xs uppercase tracking-wider text-slate-500">Fijos (Restan de tu cuenta)</h3>
+                <div id="fijos-container" class="space-y-3"></div>
+            </div>
+
+            <!-- Variables -->
+            <div class="p-6 pt-2 pb-10" id="variables-section">
+                <h3 class="text-slate-800 font-black mb-3 text-xs uppercase tracking-wider text-slate-500">Variables (Bregables)</h3>
+                <div id="variables-container" class="space-y-4"></div>
+                
+                <!-- Reset Button -->
+                <button onclick="resetearSemana()" class="w-full mt-6 text-red-600 font-bold bg-red-50 py-4 rounded-xl border border-red-100 transition active:scale-95">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i> Iniciar Nueva Semana
                 </button>
             </div>
-            
-            <div class="text-center bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-inner">
-                <p class="text-sm text-slate-400 mb-1">Balance Disponible (Cuenta)</p>
-                <h2 id="balance-vivo" class="text-5xl font-black tracking-tight text-white mb-2">$0.00</h2>
-                <div class="inline-block bg-slate-900 px-3 py-1 rounded-full text-xs font-medium text-slate-400 border border-slate-700">
-                    Ingreso Inicial: <span id="ingreso-display" class="text-white">$0.00</span>
-                </div>
-            </div>
-
-            <!-- Regla 40/40/20 Target -->
-            <div class="mt-4 bg-blue-600/20 border border-blue-500/30 rounded-xl p-3">
-                <p class="text-xs text-blue-300 font-bold mb-2 flex justify-between">
-                    <span>Meta Sobrante (40/40/20)</span>
-                    <span id="meta-sobrante-total" class="text-white">$0.00</span>
-                </p>
-                <div class="flex justify-between text-[11px] text-blue-200">
-                    <span id="meta-ahorro">Ahorro: $0.00</span>
-                    <span id="meta-deuda">Deuda: $0.00</span>
-                    <span id="meta-gusto">Gusto: $0.00</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Fijas (Checkboxes) -->
-        <div class="p-6 pb-2">
-            <h3 class="text-slate-800 font-black mb-4 flex items-center text-sm uppercase tracking-wider">
-                <i data-lucide="lock" class="w-4 h-4 mr-2 text-slate-500"></i> Fijos Intocables
-            </h3>
-            <p class="text-xs text-slate-500 mb-3">Toca para marcar como transferido/pagado. Se restará de tu balance.</p>
-            <div id="fijos-container" class="space-y-3">
-                <!-- Generado por JS -->
-            </div>
-        </div>
-
-        <!-- Bregables (Gastos) -->
-        <div class="p-6 pt-4" id="variables-section">
-            <h3 class="text-slate-800 font-black mb-4 flex items-center text-sm uppercase tracking-wider">
-                <i data-lucide="sliders" class="w-4 h-4 mr-2 text-blue-500"></i> Variables / Bregables
-            </h3>
-            <div id="variables-container" class="space-y-5">
-                <!-- Generado por JS -->
-            </div>
-        </div>
-
-        <!-- Reset Button -->
-        <div class="p-6 text-center mt-4">
-            <button onclick="resetearSemana()" class="w-full text-red-600 font-bold bg-red-50 py-4 rounded-xl border border-red-100 shadow-sm active:bg-red-100 transition">
-                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i> Iniciar Nueva Semana
-            </button>
         </div>
 
     </div>
 
-    <!-- Floating Action Button -->
-    <button onclick="abrirModalGasto()" class="fixed bottom-6 right-6 bg-blue-600 text-white p-5 rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-transform flex items-center justify-center">
+    <!-- Floating Action Button (Solo para gastos) -->
+    <button onclick="abrirModalGasto()" class="fixed bottom-24 right-6 bg-blue-600 text-white p-5 rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-transform z-40 flex items-center justify-center">
         <i data-lucide="plus" class="w-7 h-7"></i>
     </button>
 
+    <!-- Bottom Navigation Tabs -->
+    <nav class="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white border-t border-slate-200 flex justify-around p-3 z-50 pb-safe shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
+        <button onclick="switchTab('dash')" id="tab-btn-dash" class="flex flex-col items-center p-2 w-full tab-active transition">
+            <i data-lucide="layout-dashboard" class="w-6 h-6 mb-1"></i>
+            <span class="text-[10px] uppercase tracking-widest">Dashboard</span>
+        </button>
+        <button onclick="switchTab('gastos')" id="tab-btn-gastos" class="flex flex-col items-center p-2 w-full tab-inactive transition">
+            <i data-lucide="calculator" class="w-6 h-6 mb-1"></i>
+            <span class="text-[10px] uppercase tracking-widest">Control</span>
+        </button>
+    </nav>
+
     <!-- Modal Nuevo Gasto -->
-    <div id="modal-gasto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end justify-center z-50">
+    <div id="modal-gasto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end justify-center z-50 pb-safe">
         <div class="bg-white w-full max-w-md rounded-t-3xl p-6 shadow-2xl transition-transform transform translate-y-full" id="modal-content-gasto">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-black text-slate-800">Registrar Gasto</h3>
@@ -89,60 +159,42 @@
             
             <div class="relative mb-6">
                 <span class="absolute left-4 top-4 text-slate-400 font-black text-2xl">$</span>
-                <input type="number" id="monto-gasto" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 pl-12 text-2xl font-black text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition" placeholder="0.00" step="0.01">
+                <input type="number" id="monto-gasto" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 pl-12 text-2xl font-black text-slate-800 focus:outline-none focus:border-blue-500" placeholder="0.00" step="0.01">
             </div>
 
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Selecciona la Categoría</label>
-            <div id="botones-categorias" class="grid grid-cols-2 gap-3 mb-6">
-                <!-- Generado por JS -->
-            </div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Categoría</label>
+            <div id="botones-categorias" class="grid grid-cols-2 gap-3 mb-6"></div>
 
-            <button onclick="guardarGasto()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-slate-800 shadow-lg active:scale-95 transition">
-                Restar del Balance
+            <button onclick="guardarGasto()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-slate-800 shadow-lg active:scale-95 transition mb-4">
+                Restar Gasto
             </button>
         </div>
     </div>
 
-    <!-- Modal Configuración Completa -->
+    <!-- Modal Configuración (Oculto por defecto) -->
+    <!-- [El modal de configuración sigue idéntico para que puedas editar tus límites] -->
     <div id="modal-config" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
-            
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
-                <h3 class="text-lg font-black text-slate-800">Editor de Presupuesto</h3>
-                <button onclick="cerrarConfig()" class="p-2 bg-slate-200 rounded-full text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="text-lg font-black text-slate-800">Editor</h3>
+                <button onclick="cerrarConfig()" class="p-2 bg-slate-200 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            
             <div class="p-6 overflow-y-auto flex-1 space-y-6">
-                <!-- Ingreso -->
                 <div>
-                    <label class="block text-xs font-black text-blue-600 uppercase tracking-wider mb-2">1. Ingreso Base Semanal</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-3 text-slate-400 font-bold">$</span>
-                        <input type="number" id="edit-ingreso" class="w-full bg-white border-2 border-slate-200 rounded-xl p-3 pl-8 font-bold focus:border-blue-500 focus:outline-none" step="0.01">
-                    </div>
+                    <label class="block text-xs font-black text-blue-600 uppercase mb-2">Ingreso Base Semanal</label>
+                    <input type="number" id="edit-ingreso" class="w-full border-2 border-slate-200 rounded-xl p-3 font-bold" step="0.01">
                 </div>
-
-                <!-- Fijos -->
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-3">2. Fijos (Cantidades Intocables)</label>
-                    <div id="edit-fijos-container" class="space-y-3">
-                        <!-- Generado por JS -->
-                    </div>
+                    <label class="block text-xs font-black text-slate-600 uppercase mb-3">Fijos (Intocables)</label>
+                    <div id="edit-fijos-container" class="space-y-3"></div>
                 </div>
-
-                <!-- Variables -->
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-3">3. Variables (Límites Bregables)</label>
-                    <div id="edit-variables-container" class="space-y-3">
-                        <!-- Generado por JS -->
-                    </div>
+                    <label class="block text-xs font-black text-slate-600 uppercase mb-3">Variables (Límites)</label>
+                    <div id="edit-variables-container" class="space-y-3"></div>
                 </div>
             </div>
-
-            <div class="p-5 border-t border-slate-100 bg-white rounded-b-3xl">
-                <button onclick="guardarConfig()" class="w-full bg-emerald-500 text-white font-black py-4 rounded-2xl hover:bg-emerald-600 shadow-lg active:scale-95 transition">
-                    Guardar Todo
-                </button>
+            <div class="p-5 border-t bg-white rounded-b-3xl">
+                <button onclick="guardarConfig()" class="w-full bg-emerald-500 text-white font-black py-4 rounded-2xl">Guardar</button>
             </div>
         </div>
     </div>
@@ -150,11 +202,10 @@
     <script>
         lucide.createIcons();
         
-        // Estructura de Datos Base (Cargada desde LocalStorage o Valores por Defecto)
         let db = JSON.parse(localStorage.getItem('budgety_app_data')) || {
             ingreso: 643.56,
             fijos: [
-                { id: 'f1', nombre: 'Cuenta de Biles (Renta, Auto...)', monto: 393.00, pagado: false },
+                { id: 'f1', nombre: 'Cuenta de Biles', monto: 393.00, pagado: false },
                 { id: 'f2', nombre: 'Fondo Lancer', monto: 15.00, pagado: false }
             ],
             variables: [
@@ -167,197 +218,158 @@
 
         let catSeleccionada = null;
 
-        function guardarData() {
-            localStorage.setItem('budgety_app_data', JSON.stringify(db));
+        function switchTab(tab) {
+            if(tab === 'dash') {
+                document.getElementById('view-dash').classList.remove('hidden');
+                document.getElementById('view-gastos').classList.add('hidden');
+                document.getElementById('tab-btn-dash').classList.replace('tab-inactive', 'tab-active');
+                document.getElementById('tab-btn-gastos').classList.replace('tab-active', 'tab-inactive');
+            } else {
+                document.getElementById('view-dash').classList.add('hidden');
+                document.getElementById('view-gastos').classList.remove('hidden');
+                document.getElementById('tab-btn-gastos').classList.replace('tab-inactive', 'tab-active');
+                document.getElementById('tab-btn-dash').classList.replace('tab-active', 'tab-inactive');
+            }
+            renderUI();
         }
 
-        // ==========================
-        // MOTOR DE RENDERIZADO (UI)
-        // ==========================
         function renderUI() {
-            // 1. Calcular Balance en Vivo
-            let totalPagadoFijos = db.fijos.filter(f => f.pagado).reduce((sum, f) => sum + f.monto, 0);
-            let totalGastadoVariables = db.variables.reduce((sum, v) => sum + v.gastado, 0);
-            let balanceVivo = db.ingreso - totalPagadoFijos - totalGastadoVariables;
+            // Cálculos Globales
+            let totalFijosLim = db.fijos.reduce((sum, f) => sum + f.monto, 0);
+            let totalFijosPagados = db.fijos.filter(f => f.pagado).reduce((sum, f) => sum + f.monto, 0);
+            let totalVarLim = db.variables.reduce((sum, v) => sum + v.limite, 0);
+            let totalVarGastado = db.variables.reduce((sum, v) => sum + v.gastado, 0);
             
-            document.getElementById('ingreso-display').innerText = `$${db.ingreso.toFixed(2)}`;
-            document.getElementById('balance-vivo').innerText = `$${balanceVivo.toFixed(2)}`;
+            let balanceVivo = db.ingreso - totalFijosPagados - totalVarGastado;
+            let sobranteTeorico = db.ingreso - totalFijosLim - totalVarLim;
 
-            // 2. Calcular Meta Sobrante Teórica (Ingreso - Todo lo fijo - Todos los límites)
-            let totalMontoFijos = db.fijos.reduce((sum, f) => sum + f.monto, 0);
-            let totalLimitesVariables = db.variables.reduce((sum, v) => sum + v.limite, 0);
-            let sobranteTeorico = db.ingreso - totalMontoFijos - totalLimitesVariables;
+            // Update Balances
+            document.getElementById('dash-balance').innerText = `$${balanceVivo.toFixed(2)}`;
+            document.getElementById('calc-balance').innerText = `$${balanceVivo.toFixed(2)}`;
 
-            document.getElementById('meta-sobrante-total').innerText = `$${sobranteTeorico.toFixed(2)}`;
-            if(sobranteTeorico > 0) {
-                document.getElementById('meta-ahorro').innerText = `Ahorro: $${(sobranteTeorico * 0.4).toFixed(2)}`;
-                document.getElementById('meta-deuda').innerText = `Deuda: $${(sobranteTeorico * 0.4).toFixed(2)}`;
-                document.getElementById('meta-gusto').innerText = `Gusto: $${(sobranteTeorico * 0.2).toFixed(2)}`;
+            // Update Metas (Dashboard)
+            document.getElementById('dash-sobrante').innerText = `$${sobranteTeorico.toFixed(2)}`;
+            document.getElementById('dash-ahorro').innerText = `$${(sobranteTeorico * 0.4).toFixed(2)}`;
+            document.getElementById('dash-deuda').innerText = `$${(sobranteTeorico * 0.4).toFixed(2)}`;
+            document.getElementById('dash-gusto').innerText = `$${(sobranteTeorico * 0.2).toFixed(2)}`;
+
+            // Lógica del Termómetro (Dashboard)
+            let varPercent = totalVarLim > 0 ? (totalVarGastado / totalVarLim) * 100 : 0;
+            if(varPercent > 100) varPercent = 100;
+            
+            document.getElementById('gauge-marker').style.left = `${varPercent}%`;
+            document.getElementById('dash-porcentaje').innerText = `${Math.round(varPercent)}%`;
+
+            let textoEstado = document.getElementById('dash-texto-estado');
+            let porcTxt = document.getElementById('dash-porcentaje');
+            if(varPercent < 60) {
+                textoEstado.innerText = "¡Excelente! Estás en verde.";
+                textoEstado.className = "text-xs font-black text-emerald-600";
+                porcTxt.className = "text-3xl font-black text-emerald-600";
+            } else if (varPercent < 85) {
+                textoEstado.innerText = "Precaución, bajando ritmo.";
+                textoEstado.className = "text-xs font-black text-amber-500";
+                porcTxt.className = "text-3xl font-black text-amber-500";
+            } else {
+                textoEstado.innerText = "¡Peligro! Límite cercano.";
+                textoEstado.className = "text-xs font-black text-red-600";
+                porcTxt.className = "text-3xl font-black text-red-600";
             }
 
-            // 3. Renderizar Fijos (Checkboxes)
+            // Renderizar Control (Tab 2)
             const contenedorFijos = document.getElementById('fijos-container');
             contenedorFijos.innerHTML = '';
-            db.fijos.forEach((fijo, index) => {
+            db.fijos.forEach((fijo, i) => {
                 const btnClase = fijo.pagado ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-slate-200 text-slate-700';
-                const checkIcon = fijo.pagado ? '<i data-lucide="check-circle" class="w-6 h-6 text-emerald-500"></i>' : '<i data-lucide="circle" class="w-6 h-6 text-slate-300"></i>';
-                
+                const checkIcon = fijo.pagado ? '<i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>' : '<i data-lucide="circle" class="w-5 h-5 text-slate-300"></i>';
                 contenedorFijos.innerHTML += `
-                <div onclick="toggleFijo(${index})" class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition active:scale-[0.98] shadow-sm ${btnClase}">
-                    <div class="flex items-center gap-3">
-                        ${checkIcon}
-                        <span class="font-bold ${fijo.pagado ? 'line-through opacity-70' : ''}">${fijo.nombre}</span>
-                    </div>
-                    <span class="font-black">$${fijo.monto.toFixed(2)}</span>
+                <div onclick="toggleFijo(${i})" class="flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer shadow-sm ${btnClase}">
+                    <div class="flex items-center gap-3">${checkIcon}<span class="font-bold text-sm ${fijo.pagado ? 'line-through opacity-70' : ''}">${fijo.nombre}</span></div>
+                    <span class="font-black text-sm">$${fijo.monto.toFixed(2)}</span>
                 </div>`;
             });
 
-            // 4. Renderizar Variables (Barras)
             const contenedorVar = document.getElementById('variables-container');
-            const contenedorBotones = document.getElementById('botones-categorias');
-            contenedorVar.innerHTML = '';
-            contenedorBotones.innerHTML = '';
+            const contBotones = document.getElementById('botones-categorias');
+            contenedorVar.innerHTML = ''; contBotones.innerHTML = '';
 
-            db.variables.forEach((v, index) => {
-                let disponible = (v.limite - v.gastado).toFixed(2);
-                let porcentaje = Math.min((v.gastado / v.limite) * 100, 100) || 0;
-                let isAlert = disponible < 0;
-                let colorClase = isAlert ? 'bg-red-500' : v.color;
-                let textoClase = isAlert ? 'text-red-600' : 'text-slate-800';
+            db.variables.forEach((v, i) => {
+                let disp = (v.limite - v.gastado).toFixed(2);
+                let isAlert = disp < 0;
+                let pct = Math.min((v.gastado / v.limite) * 100, 100) || 0;
+                let col = isAlert ? 'bg-red-500' : v.color;
+                let txtCol = isAlert ? 'text-red-600' : 'text-slate-700';
 
-                // Barra
                 contenedorVar.innerHTML += `
                 <div>
-                    <div class="flex justify-between items-end mb-2">
-                        <span class="font-bold text-slate-700">${v.nombre}</span>
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="font-bold text-sm text-slate-700">${v.nombre}</span>
                         <div class="text-right">
-                            <span class="font-black ${textoClase} text-lg">$${disponible}</span>
-                            <span class="text-xs font-medium text-slate-400 block">Límite: $${v.limite.toFixed(2)}</span>
+                            <span class="font-black text-lg ${txtCol}">$${disp}</span>
                         </div>
                     </div>
-                    <div class="w-full bg-slate-100 rounded-full h-3 border border-slate-200 overflow-hidden">
-                        <div class="${colorClase} h-full transition-all duration-500 rounded-full shadow-sm" style="width: ${porcentaje}%"></div>
+                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                        <div class="${col} h-full transition-all duration-500" style="width: ${pct}%"></div>
                     </div>
                 </div>`;
 
-                // Botón para Modal
-                contenedorBotones.innerHTML += `
-                <button onclick="seleccionarCatModal(${index})" class="cat-btn bg-slate-50 border-2 border-slate-200 p-3 rounded-2xl text-left transition active:scale-95">
+                contBotones.innerHTML += `
+                <button onclick="seleccionarCatModal(${i})" class="cat-btn bg-slate-50 border-2 border-slate-200 p-3 rounded-xl text-left active:scale-95">
                     <span class="block font-bold text-slate-700 text-sm truncate">${v.nombre}</span>
-                    <span class="block text-xs font-black ${textoClase} mt-1">Quedan $${disponible}</span>
+                    <span class="block text-xs font-black ${txtCol}">$${disp} libres</span>
                 </button>`;
             });
 
             lucide.createIcons();
-            guardarData();
+            localStorage.setItem('budgety_app_data', JSON.stringify(db));
         }
 
-        // ==========================
-        // ACCIONES DE GASTO / FIJOS
-        // ==========================
-        function toggleFijo(index) {
-            db.fijos[index].pagado = !db.fijos[index].pagado;
-            renderUI();
-        }
-
+        function toggleFijo(i) { db.fijos[i].pagado = !db.fijos[i].pagado; renderUI(); }
+        
         function abrirModalGasto() {
             document.getElementById('modal-gasto').style.display = 'flex';
             setTimeout(() => document.getElementById('modal-content-gasto').classList.remove('translate-y-full'), 10);
-            document.getElementById('monto-gasto').value = '';
-            catSeleccionada = null;
-            renderUI();
+            document.getElementById('monto-gasto').value = ''; catSeleccionada = null; renderUI();
         }
-
         function cerrarModalGasto() {
             document.getElementById('modal-content-gasto').classList.add('translate-y-full');
             setTimeout(() => document.getElementById('modal-gasto').style.display = 'none', 300);
         }
-
-        function seleccionarCatModal(index) {
-            catSeleccionada = index;
+        function seleccionarCatModal(i) {
+            catSeleccionada = i;
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.replace('border-blue-500', 'border-slate-200'));
-            document.querySelectorAll('.cat-btn')[index].classList.replace('border-slate-200', 'border-blue-500');
+            document.querySelectorAll('.cat-btn')[i].classList.replace('border-slate-200', 'border-blue-500');
         }
-
         function guardarGasto() {
-            const monto = parseFloat(document.getElementById('monto-gasto').value);
-            if(isNaN(monto) || monto <= 0) return alert('Ingresa un monto válido.');
-            if(catSeleccionada === null) return alert('Selecciona una categoría.');
-
-            db.variables[catSeleccionada].gastado += monto;
-            renderUI();
-            cerrarModalGasto();
+            let m = parseFloat(document.getElementById('monto-gasto').value);
+            if(isNaN(m) || m <= 0) return alert('Ingresa un monto.');
+            if(catSeleccionada === null) return alert('Selecciona categoría.');
+            db.variables[catSeleccionada].gastado += m;
+            renderUI(); cerrarModalGasto();
         }
-
         function resetearSemana() {
-            if(confirm('¿Iniciar nueva semana? Esto regresará tus fijos a "No pagados" y tus gastos a $0.00. (Tus límites y configuraciones se mantienen).')) {
+            if(confirm('¿Iniciar semana? Fijos pasarán a "No pagados" y variables a $0.')) {
                 db.fijos.forEach(f => f.pagado = false);
                 db.variables.forEach(v => v.gastado = 0);
                 renderUI();
             }
         }
-
-        // ==========================
-        // EDITOR TOTAL (SETTINGS)
-        // ==========================
         function abrirConfig() {
             document.getElementById('modal-config').style.display = 'flex';
             document.getElementById('edit-ingreso').value = db.ingreso;
-
-            // Llenar Fijos
-            const contFijos = document.getElementById('edit-fijos-container');
-            contFijos.innerHTML = '';
-            db.fijos.forEach((f, index) => {
-                contFijos.innerHTML += `
-                <div class="flex gap-2">
-                    <input type="text" id="ef-nombre-${index}" value="${f.nombre}" class="flex-1 border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 focus:outline-none">
-                    <div class="relative w-28">
-                        <span class="absolute left-2 top-2 text-slate-400 text-sm">$</span>
-                        <input type="number" id="ef-monto-${index}" value="${f.monto}" class="w-full border-2 border-slate-200 rounded-lg p-2 pl-6 text-sm font-bold focus:border-blue-500 focus:outline-none" step="0.01">
-                    </div>
-                </div>`;
-            });
-
-            // Llenar Variables
-            const contVars = document.getElementById('edit-variables-container');
-            contVars.innerHTML = '';
-            db.variables.forEach((v, index) => {
-                contVars.innerHTML += `
-                <div class="flex gap-2">
-                    <input type="text" id="ev-nombre-${index}" value="${v.nombre}" class="flex-1 border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 focus:outline-none">
-                    <div class="relative w-28">
-                        <span class="absolute left-2 top-2 text-slate-400 text-sm">$</span>
-                        <input type="number" id="ev-limite-${index}" value="${v.limite}" class="w-full border-2 border-slate-200 rounded-lg p-2 pl-6 text-sm font-bold focus:border-blue-500 focus:outline-none" step="0.01">
-                    </div>
-                </div>`;
-            });
+            let cF = document.getElementById('edit-fijos-container'); cF.innerHTML = '';
+            db.fijos.forEach((f, i) => cF.innerHTML += `<div class="flex gap-2 mb-2"><input type="text" id="ef-n-${i}" value="${f.nombre}" class="flex-1 border p-2 text-sm rounded"><input type="number" id="ef-m-${i}" value="${f.monto}" class="w-24 border p-2 text-sm rounded" step="0.01"></div>`);
+            let cV = document.getElementById('edit-variables-container'); cV.innerHTML = '';
+            db.variables.forEach((v, i) => cV.innerHTML += `<div class="flex gap-2 mb-2"><input type="text" id="ev-n-${i}" value="${v.nombre}" class="flex-1 border p-2 text-sm rounded"><input type="number" id="ev-l-${i}" value="${v.limite}" class="w-24 border p-2 text-sm rounded" step="0.01"></div>`);
         }
-
-        function cerrarConfig() {
-            document.getElementById('modal-config').style.display = 'none';
-        }
-
+        function cerrarConfig() { document.getElementById('modal-config').style.display = 'none'; }
         function guardarConfig() {
-            // Guardar Ingreso
             db.ingreso = parseFloat(document.getElementById('edit-ingreso').value) || 0;
-
-            // Guardar Fijos
-            db.fijos.forEach((f, index) => {
-                f.nombre = document.getElementById(`ef-nombre-${index}`).value || 'Categoría';
-                f.monto = parseFloat(document.getElementById(`ef-monto-${index}`).value) || 0;
-            });
-
-            // Guardar Variables
-            db.variables.forEach((v, index) => {
-                v.nombre = document.getElementById(`ev-nombre-${index}`).value || 'Categoría';
-                v.limite = parseFloat(document.getElementById(`ev-limite-${index}`).value) || 0;
-            });
-
-            renderUI();
-            cerrarConfig();
+            db.fijos.forEach((f, i) => { f.nombre = document.getElementById(`ef-n-${i}`).value; f.monto = parseFloat(document.getElementById(`ef-m-${i}`).value) || 0; });
+            db.variables.forEach((v, i) => { v.nombre = document.getElementById(`ev-n-${i}`).value; v.limite = parseFloat(document.getElementById(`ev-l-${i}`).value) || 0; });
+            renderUI(); cerrarConfig();
         }
 
-        // Iniciar
         renderUI();
     </script>
 </body>
