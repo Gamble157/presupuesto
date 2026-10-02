@@ -3,305 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budgety - Flujo Nivelado</title>
+    <title>Budgety - Control Semanal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans pb-20">
+<body class="bg-gray-100 min-h-screen font-sans pb-24">
     <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg relative">
         
-        <!-- Header & Resumen -->
-        <div class="bg-blue-600 text-white p-6 rounded-b-3xl shadow-md">
+        <!-- Header & Balance en Vivo -->
+        <div class="bg-slate-900 text-white p-6 rounded-b-3xl shadow-xl">
             <div class="flex justify-between items-start mb-4">
-                <h1 class="text-2xl font-bold">Budgety</h1>
-                <button onclick="abrirConfig()" class="p-2 bg-blue-700 rounded-full hover:bg-blue-800 transition">
-                    <i data-lucide="settings" class="w-5 h-5"></i>
+                <div>
+                    <h1 class="text-2xl font-bold text-blue-400">Budgety</h1>
+                    <p class="text-xs text-slate-400">Flujo Semanal Activo</p>
+                </div>
+                <button onclick="abrirConfig()" class="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">
+                    <i data-lucide="settings" class="w-5 h-5 text-slate-300"></i>
                 </button>
             </div>
-            <div class="bg-blue-700/50 p-4 rounded-xl">
-                <p class="text-sm opacity-90 flex justify-between">
-                    <span>Sobrante Libre Semanal</span>
-                    <span id="ingreso-display" class="font-bold border-b border-blue-400">Ingreso: $0.00</span>
+            
+            <div class="text-center bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-inner">
+                <p class="text-sm text-slate-400 mb-1">Balance Disponible (Cuenta)</p>
+                <h2 id="balance-vivo" class="text-5xl font-black tracking-tight text-white mb-2">$0.00</h2>
+                <div class="inline-block bg-slate-900 px-3 py-1 rounded-full text-xs font-medium text-slate-400 border border-slate-700">
+                    Ingreso Inicial: <span id="ingreso-display" class="text-white">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Regla 40/40/20 Target -->
+            <div class="mt-4 bg-blue-600/20 border border-blue-500/30 rounded-xl p-3">
+                <p class="text-xs text-blue-300 font-bold mb-2 flex justify-between">
+                    <span>Meta Sobrante (40/40/20)</span>
+                    <span id="meta-sobrante-total" class="text-white">$0.00</span>
                 </p>
-                <h2 id="sobrante-total" class="text-3xl font-bold">$0.00</h2>
-                <div class="flex justify-between mt-3 text-xs border-t border-blue-500 pt-2">
-                    <span id="ahorro-meta">Ahorro (40%): $0.00</span>
-                    <span id="deudas-meta">Deudas (40%): $0.00</span>
-                    <span id="gustos-meta">Gustos (20%): $0.00</span>
+                <div class="flex justify-between text-[11px] text-blue-200">
+                    <span id="meta-ahorro">Ahorro: $0.00</span>
+                    <span id="meta-deuda">Deuda: $0.00</span>
+                    <span id="meta-gusto">Gusto: $0.00</span>
                 </div>
             </div>
         </div>
 
-        <!-- Fijos -->
+        <!-- Acciones Fijas (Checkboxes) -->
         <div class="p-6 pb-2">
-            <h3 class="text-gray-800 font-bold mb-3 flex items-center">
-                <i data-lucide="lock" class="w-4 h-4 mr-2 text-gray-500"></i> Fijos Intocables
+            <h3 class="text-slate-800 font-black mb-4 flex items-center text-sm uppercase tracking-wider">
+                <i data-lucide="lock" class="w-4 h-4 mr-2 text-slate-500"></i> Fijos Intocables
             </h3>
-            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center mb-2">
-                <span class="text-sm text-gray-600">Cuenta de Biles</span>
-                <span id="biles-display" class="font-bold text-gray-800">$0.00</span>
-            </div>
-            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center">
-                <span class="text-sm text-gray-600">Fondo Auto (Marbete)</span>
-                <span id="auto-display" class="font-bold text-gray-800">$0.00</span>
+            <p class="text-xs text-slate-500 mb-3">Toca para marcar como transferido/pagado. Se restará de tu balance.</p>
+            <div id="fijos-container" class="space-y-3">
+                <!-- Generado por JS -->
             </div>
         </div>
 
-        <!-- Bregables -->
-        <div class="p-6 pt-2" id="variables-container">
-            <h3 class="text-gray-800 font-bold mb-3 flex items-center mt-4">
+        <!-- Bregables (Gastos) -->
+        <div class="p-6 pt-4" id="variables-section">
+            <h3 class="text-slate-800 font-black mb-4 flex items-center text-sm uppercase tracking-wider">
                 <i data-lucide="sliders" class="w-4 h-4 mr-2 text-blue-500"></i> Variables / Bregables
             </h3>
-            <!-- Generado por JS -->
+            <div id="variables-container" class="space-y-5">
+                <!-- Generado por JS -->
+            </div>
         </div>
 
         <!-- Reset Button -->
-        <div class="p-6 text-center">
-            <button onclick="resetearSemana()" class="text-red-500 text-sm font-bold bg-red-50 px-4 py-2 rounded-full border border-red-200">
-                Reiniciar Semana a Cero
+        <div class="p-6 text-center mt-4">
+            <button onclick="resetearSemana()" class="w-full text-red-600 font-bold bg-red-50 py-4 rounded-xl border border-red-100 shadow-sm active:bg-red-100 transition">
+                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i> Iniciar Nueva Semana
             </button>
         </div>
 
     </div>
 
     <!-- Floating Action Button -->
-    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition">
-        <i data-lucide="plus" class="w-6 h-6"></i>
+    <button onclick="abrirModalGasto()" class="fixed bottom-6 right-6 bg-blue-600 text-white p-5 rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-transform flex items-center justify-center">
+        <i data-lucide="plus" class="w-7 h-7"></i>
     </button>
 
     <!-- Modal Nuevo Gasto -->
-    <div id="modal" class="fixed inset-0 bg-black/50 hidden items-end justify-center z-50">
-        <div class="bg-white w-full max-w-md rounded-t-3xl p-6 shadow-2xl transition-transform transform translate-y-full" id="modal-content">
+    <div id="modal-gasto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end justify-center z-50">
+        <div class="bg-white w-full max-w-md rounded-t-3xl p-6 shadow-2xl transition-transform transform translate-y-full" id="modal-content-gasto">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold">Registrar Gasto</h3>
-                <button onclick="cerrarModal()" class="text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="text-xl font-black text-slate-800">Registrar Gasto</h3>
+                <button onclick="cerrarModalGasto()" class="p-2 bg-slate-100 rounded-full text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <label class="block text-sm text-gray-600 mb-1">Monto gastado</label>
             <div class="relative mb-6">
-                <span class="absolute left-3 top-3 text-gray-500 font-bold">$</span>
-                <input type="number" id="monto" class="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 pl-8 text-lg font-bold focus:outline-none focus:border-blue-500" placeholder="0.00" step="0.01">
+                <span class="absolute left-4 top-4 text-slate-400 font-black text-2xl">$</span>
+                <input type="number" id="monto-gasto" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 pl-12 text-2xl font-black text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition" placeholder="0.00" step="0.01">
             </div>
 
-            <label class="block text-sm text-gray-600 mb-2">Categoría</label>
-            <div id="botones-categorias" class="grid grid-cols-2 gap-2 mb-6">
-                <!-- Generado dinámicamente -->
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Selecciona la Categoría</label>
+            <div id="botones-categorias" class="grid grid-cols-2 gap-3 mb-6">
+                <!-- Generado por JS -->
             </div>
 
-            <button onclick="guardarGasto()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700">Restar del Presupuesto</button>
+            <button onclick="guardarGasto()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-slate-800 shadow-lg active:scale-95 transition">
+                Restar del Balance
+            </button>
         </div>
     </div>
 
-    <!-- Modal Configuración -->
-    <div id="config-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h3 class="text-lg font-bold text-gray-800">Ajustes Semanales</h3>
-                <button onclick="cerrarConfig()" class="text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <!-- Modal Configuración Completa -->
+    <div id="modal-config" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
+            
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
+                <h3 class="text-lg font-black text-slate-800">Editor de Presupuesto</h3>
+                <button onclick="cerrarConfig()" class="p-2 bg-slate-200 rounded-full text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <div class="space-y-4">
+            <div class="p-6 overflow-y-auto flex-1 space-y-6">
+                <!-- Ingreso -->
                 <div>
-                    <label class="block text-sm font-bold text-blue-600 mb-1">Ingreso Semanal Neto</label>
-                    <input type="number" id="conf-ingreso" class="w-full border rounded-lg p-2 bg-gray-50" step="0.01">
-                </div>
-                
-                <div class="bg-gray-100 p-3 rounded-lg border">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Cuenta de Biles (Fijos)</label>
-                    <input type="number" id="conf-biles" class="w-full border rounded-lg p-2 bg-white mb-2" step="0.01">
-                    
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Fondo Auto</label>
-                    <input type="number" id="conf-auto" class="w-full border rounded-lg p-2 bg-white" step="0.01">
+                    <label class="block text-xs font-black text-blue-600 uppercase tracking-wider mb-2">1. Ingreso Base Semanal</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-slate-400 font-bold">$</span>
+                        <input type="number" id="edit-ingreso" class="w-full bg-white border-2 border-slate-200 rounded-xl p-3 pl-8 font-bold focus:border-blue-500 focus:outline-none" step="0.01">
+                    </div>
                 </div>
 
-                <div class="border-t pt-3">
-                    <h4 class="text-sm font-bold text-gray-800 mb-2">Límites Variables (Bregables)</h4>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs text-gray-600">Súper</label>
-                            <input type="number" id="conf-lim-super" class="w-full border rounded-lg p-2 text-sm" step="0.01">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600">Comida Fuera</label>
-                            <input type="number" id="conf-lim-comida" class="w-full border rounded-lg p-2 text-sm" step="0.01">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600">Gasolina</label>
-                            <input type="number" id="conf-lim-gasolina" class="w-full border rounded-lg p-2 text-sm" step="0.01">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-600">Suscripciones</label>
-                            <input type="number" id="conf-lim-subs" class="w-full border rounded-lg p-2 text-sm" step="0.01">
-                        </div>
+                <!-- Fijos -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-3">2. Fijos (Cantidades Intocables)</label>
+                    <div id="edit-fijos-container" class="space-y-3">
+                        <!-- Generado por JS -->
+                    </div>
+                </div>
+
+                <!-- Variables -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-3">3. Variables (Límites Bregables)</label>
+                    <div id="edit-variables-container" class="space-y-3">
+                        <!-- Generado por JS -->
                     </div>
                 </div>
             </div>
 
-            <button onclick="guardarConfig()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl mt-6 hover:bg-emerald-700">Guardar Cambios</button>
+            <div class="p-5 border-t border-slate-100 bg-white rounded-b-3xl">
+                <button onclick="guardarConfig()" class="w-full bg-emerald-500 text-white font-black py-4 rounded-2xl hover:bg-emerald-600 shadow-lg active:scale-95 transition">
+                    Guardar Todo
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
         lucide.createIcons();
         
-        // Datos por defecto basados en tu auditoría inicial
-        const configBase = {
+        // Estructura de Datos Base (Cargada desde LocalStorage o Valores por Defecto)
+        let db = JSON.parse(localStorage.getItem('budgety_app_data')) || {
             ingreso: 643.56,
-            biles: 393.00,
-            auto: 15.00
+            fijos: [
+                { id: 'f1', nombre: 'Cuenta de Biles (Renta, Auto...)', monto: 393.00, pagado: false },
+                { id: 'f2', nombre: 'Fondo Lancer', monto: 15.00, pagado: false }
+            ],
+            variables: [
+                { id: 'v1', nombre: 'Súper / Costco', limite: 68.75, gastado: 0, color: 'bg-emerald-500' },
+                { id: 'v2', nombre: 'Comida Fuera', limite: 43.30, gastado: 0, color: 'bg-orange-500' },
+                { id: 'v3', nombre: 'Gasolina', limite: 15.00, gastado: 0, color: 'bg-indigo-500' },
+                { id: 'v4', nombre: 'Suscripciones', limite: 12.50, gastado: 0, color: 'bg-purple-500' }
+            ]
         };
 
-        const categoriasBase = {
-            super: { nombre: 'Súper / Costco', limite: 68.75, gastado: 0, color: 'bg-emerald-500' },
-            comida: { nombre: 'Comida fuera', limite: 43.30, gastado: 0, color: 'bg-orange-500' },
-            gasolina: { nombre: 'Gasolina', limite: 15.00, gastado: 0, color: 'bg-indigo-500' },
-            subs: { nombre: 'Suscripciones', limite: 12.50, gastado: 0, color: 'bg-purple-500' }
-        };
-
-        let configGlobal = JSON.parse(localStorage.getItem('budgety_config')) || JSON.parse(JSON.stringify(configBase));
-        let categorias = JSON.parse(localStorage.getItem('budgety_data')) || JSON.parse(JSON.stringify(categoriasBase));
         let catSeleccionada = null;
 
-        function calcularSobrante() {
-            let totalVariables = 0;
-            for(let key in categorias) {
-                totalVariables += parseFloat(categorias[key].limite);
-            }
-            
-            // Cero Dinero Fantasma: Ingreso - Fijos - Suma de Límites Variables
-            const sobrante = configGlobal.ingreso - configGlobal.biles - configGlobal.auto - totalVariables;
-            
-            document.getElementById('ingreso-display').innerText = `Ingreso: $${parseFloat(configGlobal.ingreso).toFixed(2)}`;
-            document.getElementById('biles-display').innerText = `$${parseFloat(configGlobal.biles).toFixed(2)}`;
-            document.getElementById('auto-display').innerText = `$${parseFloat(configGlobal.auto).toFixed(2)}`;
-            
-            document.getElementById('sobrante-total').innerText = `$${sobrante.toFixed(2)}`;
-            
-            if(sobrante > 0) {
-                document.getElementById('ahorro-meta').innerText = `Ahorro (40%): $${(sobrante * 0.4).toFixed(2)}`;
-                document.getElementById('deudas-meta').innerText = `Deudas (40%): $${(sobrante * 0.4).toFixed(2)}`;
-                document.getElementById('gustos-meta').innerText = `Gustos (20%): $${(sobrante * 0.2).toFixed(2)}`;
-            } else {
-                document.getElementById('ahorro-meta').innerText = "Ajusta tus gastos";
-                document.getElementById('deudas-meta').innerText = "Sobrante negativo";
-                document.getElementById('gustos-meta').innerText = "Revisa límites";
-            }
+        function guardarData() {
+            localStorage.setItem('budgety_app_data', JSON.stringify(db));
         }
 
-        function renderizarUI() {
-            const container = document.getElementById('variables-container');
-            const botones = document.getElementById('botones-categorias');
-            let htmlBarras = '';
-            let htmlBotones = '';
+        // ==========================
+        // MOTOR DE RENDERIZADO (UI)
+        // ==========================
+        function renderUI() {
+            // 1. Calcular Balance en Vivo
+            let totalPagadoFijos = db.fijos.filter(f => f.pagado).reduce((sum, f) => sum + f.monto, 0);
+            let totalGastadoVariables = db.variables.reduce((sum, v) => sum + v.gastado, 0);
+            let balanceVivo = db.ingreso - totalPagadoFijos - totalGastadoVariables;
             
-            for(let key in categorias) {
-                const cat = categorias[key];
-                const disponible = (cat.limite - cat.gastado).toFixed(2);
-                const porcentaje = Math.min((cat.gastado / cat.limite) * 100, 100);
-                const alertaRoja = disponible < 0 ? 'text-red-600 font-bold' : 'text-gray-800 font-bold';
-                const barraColor = disponible < 0 ? 'bg-red-500' : cat.color;
+            document.getElementById('ingreso-display').innerText = `$${db.ingreso.toFixed(2)}`;
+            document.getElementById('balance-vivo').innerText = `$${balanceVivo.toFixed(2)}`;
 
-                htmlBarras += `
-                <div class="mb-4">
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="text-sm font-bold text-gray-700">${cat.nombre}</span>
-                        <span class="text-sm ${alertaRoja}">$${disponible} <span class="text-xs text-gray-400 font-normal">de $${cat.limite}</span></span>
+            // 2. Calcular Meta Sobrante Teórica (Ingreso - Todo lo fijo - Todos los límites)
+            let totalMontoFijos = db.fijos.reduce((sum, f) => sum + f.monto, 0);
+            let totalLimitesVariables = db.variables.reduce((sum, v) => sum + v.limite, 0);
+            let sobranteTeorico = db.ingreso - totalMontoFijos - totalLimitesVariables;
+
+            document.getElementById('meta-sobrante-total').innerText = `$${sobranteTeorico.toFixed(2)}`;
+            if(sobranteTeorico > 0) {
+                document.getElementById('meta-ahorro').innerText = `Ahorro: $${(sobranteTeorico * 0.4).toFixed(2)}`;
+                document.getElementById('meta-deuda').innerText = `Deuda: $${(sobranteTeorico * 0.4).toFixed(2)}`;
+                document.getElementById('meta-gusto').innerText = `Gusto: $${(sobranteTeorico * 0.2).toFixed(2)}`;
+            }
+
+            // 3. Renderizar Fijos (Checkboxes)
+            const contenedorFijos = document.getElementById('fijos-container');
+            contenedorFijos.innerHTML = '';
+            db.fijos.forEach((fijo, index) => {
+                const btnClase = fijo.pagado ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-slate-200 text-slate-700';
+                const checkIcon = fijo.pagado ? '<i data-lucide="check-circle" class="w-6 h-6 text-emerald-500"></i>' : '<i data-lucide="circle" class="w-6 h-6 text-slate-300"></i>';
+                
+                contenedorFijos.innerHTML += `
+                <div onclick="toggleFijo(${index})" class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition active:scale-[0.98] shadow-sm ${btnClase}">
+                    <div class="flex items-center gap-3">
+                        ${checkIcon}
+                        <span class="font-bold ${fijo.pagado ? 'line-through opacity-70' : ''}">${fijo.nombre}</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                        <div class="${barraColor} h-2.5 rounded-full transition-all duration-500" style="width: ${porcentaje}%"></div>
+                    <span class="font-black">$${fijo.monto.toFixed(2)}</span>
+                </div>`;
+            });
+
+            // 4. Renderizar Variables (Barras)
+            const contenedorVar = document.getElementById('variables-container');
+            const contenedorBotones = document.getElementById('botones-categorias');
+            contenedorVar.innerHTML = '';
+            contenedorBotones.innerHTML = '';
+
+            db.variables.forEach((v, index) => {
+                let disponible = (v.limite - v.gastado).toFixed(2);
+                let porcentaje = Math.min((v.gastado / v.limite) * 100, 100) || 0;
+                let isAlert = disponible < 0;
+                let colorClase = isAlert ? 'bg-red-500' : v.color;
+                let textoClase = isAlert ? 'text-red-600' : 'text-slate-800';
+
+                // Barra
+                contenedorVar.innerHTML += `
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="font-bold text-slate-700">${v.nombre}</span>
+                        <div class="text-right">
+                            <span class="font-black ${textoClase} text-lg">$${disponible}</span>
+                            <span class="text-xs font-medium text-slate-400 block">Límite: $${v.limite.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 border border-slate-200 overflow-hidden">
+                        <div class="${colorClase} h-full transition-all duration-500 rounded-full shadow-sm" style="width: ${porcentaje}%"></div>
                     </div>
                 </div>`;
 
-                htmlBotones += `
-                <button onclick="seleccionarCategoria('${key}')" class="cat-btn bg-gray-100 p-3 rounded-xl text-sm font-bold text-gray-700 border-2 border-transparent">
-                    ${cat.nombre} ($${disponible})
+                // Botón para Modal
+                contenedorBotones.innerHTML += `
+                <button onclick="seleccionarCatModal(${index})" class="cat-btn bg-slate-50 border-2 border-slate-200 p-3 rounded-2xl text-left transition active:scale-95">
+                    <span class="block font-bold text-slate-700 text-sm truncate">${v.nombre}</span>
+                    <span class="block text-xs font-black ${textoClase} mt-1">Quedan $${disponible}</span>
                 </button>`;
-            }
-            container.innerHTML = htmlBarras;
-            botones.innerHTML = htmlBotones;
-            calcularSobrante();
+            });
+
+            lucide.createIcons();
+            guardarData();
         }
 
-        // Funciones de Configuración
-        function abrirConfig() {
-            document.getElementById('config-modal').style.display = 'flex';
-            document.getElementById('conf-ingreso').value = configGlobal.ingreso;
-            document.getElementById('conf-biles').value = configGlobal.biles;
-            document.getElementById('conf-auto').value = configGlobal.auto;
-            
-            document.getElementById('conf-lim-super').value = categorias.super.limite;
-            document.getElementById('conf-lim-comida').value = categorias.comida.limite;
-            document.getElementById('conf-lim-gasolina').value = categorias.gasolina.limite;
-            document.getElementById('conf-lim-subs').value = categorias.subs.limite;
+        // ==========================
+        // ACCIONES DE GASTO / FIJOS
+        // ==========================
+        function toggleFijo(index) {
+            db.fijos[index].pagado = !db.fijos[index].pagado;
+            renderUI();
         }
 
-        function cerrarConfig() {
-            document.getElementById('config-modal').style.display = 'none';
-        }
-
-        function guardarConfig() {
-            configGlobal.ingreso = parseFloat(document.getElementById('conf-ingreso').value) || 0;
-            configGlobal.biles = parseFloat(document.getElementById('conf-biles').value) || 0;
-            configGlobal.auto = parseFloat(document.getElementById('conf-auto').value) || 0;
-
-            categorias.super.limite = parseFloat(document.getElementById('conf-lim-super').value) || 0;
-            categorias.comida.limite = parseFloat(document.getElementById('conf-lim-comida').value) || 0;
-            categorias.gasolina.limite = parseFloat(document.getElementById('conf-lim-gasolina').value) || 0;
-            categorias.subs.limite = parseFloat(document.getElementById('conf-lim-subs').value) || 0;
-
-            localStorage.setItem('budgety_config', JSON.stringify(configGlobal));
-            localStorage.setItem('budgety_data', JSON.stringify(categorias));
-            
-            renderizarUI();
-            cerrarConfig();
-        }
-
-        // Funciones de Gasto
-        function abrirModal() {
-            document.getElementById('modal').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('modal-content').classList.remove('translate-y-full');
-            }, 10);
-            document.getElementById('monto').value = '';
+        function abrirModalGasto() {
+            document.getElementById('modal-gasto').style.display = 'flex';
+            setTimeout(() => document.getElementById('modal-content-gasto').classList.remove('translate-y-full'), 10);
+            document.getElementById('monto-gasto').value = '';
             catSeleccionada = null;
-            renderizarUI(); // Refrescar botones
+            renderUI();
         }
 
-        function cerrarModal() {
-            document.getElementById('modal-content').classList.add('translate-y-full');
-            setTimeout(() => {
-                document.getElementById('modal').style.display = 'none';
-            }, 300);
+        function cerrarModalGasto() {
+            document.getElementById('modal-content-gasto').classList.add('translate-y-full');
+            setTimeout(() => document.getElementById('modal-gasto').style.display = 'none', 300);
         }
 
-        function seleccionarCategoria(key) {
-            catSeleccionada = key;
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.replace('border-blue-500', 'border-transparent'));
-            event.target.classList.replace('border-transparent', 'border-blue-500');
+        function seleccionarCatModal(index) {
+            catSeleccionada = index;
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.replace('border-blue-500', 'border-slate-200'));
+            document.querySelectorAll('.cat-btn')[index].classList.replace('border-slate-200', 'border-blue-500');
         }
 
         function guardarGasto() {
-            const monto = parseFloat(document.getElementById('monto').value);
-            if(isNaN(monto) || monto <= 0) return alert('Ingresa un monto válido');
-            if(!catSeleccionada) return alert('Selecciona una categoría');
+            const monto = parseFloat(document.getElementById('monto-gasto').value);
+            if(isNaN(monto) || monto <= 0) return alert('Ingresa un monto válido.');
+            if(catSeleccionada === null) return alert('Selecciona una categoría.');
 
-            categorias[catSeleccionada].gastado += monto;
-            localStorage.setItem('budgety_data', JSON.stringify(categorias));
-            renderizarUI();
-            cerrarModal();
+            db.variables[catSeleccionada].gastado += monto;
+            renderUI();
+            cerrarModalGasto();
         }
 
         function resetearSemana() {
-            if(confirm('¿Estás seguro que quieres reiniciar todos tus consumos a cero? Tus límites y configuración se mantendrán.')) {
-                for(let key in categorias) {
-                    categorias[key].gastado = 0;
-                }
-                localStorage.setItem('budgety_data', JSON.stringify(categorias));
-                renderizarUI();
+            if(confirm('¿Iniciar nueva semana? Esto regresará tus fijos a "No pagados" y tus gastos a $0.00. (Tus límites y configuraciones se mantienen).')) {
+                db.fijos.forEach(f => f.pagado = false);
+                db.variables.forEach(v => v.gastado = 0);
+                renderUI();
             }
         }
 
-        renderizarUI();
+        // ==========================
+        // EDITOR TOTAL (SETTINGS)
+        // ==========================
+        function abrirConfig() {
+            document.getElementById('modal-config').style.display = 'flex';
+            document.getElementById('edit-ingreso').value = db.ingreso;
+
+            // Llenar Fijos
+            const contFijos = document.getElementById('edit-fijos-container');
+            contFijos.innerHTML = '';
+            db.fijos.forEach((f, index) => {
+                contFijos.innerHTML += `
+                <div class="flex gap-2">
+                    <input type="text" id="ef-nombre-${index}" value="${f.nombre}" class="flex-1 border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 focus:outline-none">
+                    <div class="relative w-28">
+                        <span class="absolute left-2 top-2 text-slate-400 text-sm">$</span>
+                        <input type="number" id="ef-monto-${index}" value="${f.monto}" class="w-full border-2 border-slate-200 rounded-lg p-2 pl-6 text-sm font-bold focus:border-blue-500 focus:outline-none" step="0.01">
+                    </div>
+                </div>`;
+            });
+
+            // Llenar Variables
+            const contVars = document.getElementById('edit-variables-container');
+            contVars.innerHTML = '';
+            db.variables.forEach((v, index) => {
+                contVars.innerHTML += `
+                <div class="flex gap-2">
+                    <input type="text" id="ev-nombre-${index}" value="${v.nombre}" class="flex-1 border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 focus:outline-none">
+                    <div class="relative w-28">
+                        <span class="absolute left-2 top-2 text-slate-400 text-sm">$</span>
+                        <input type="number" id="ev-limite-${index}" value="${v.limite}" class="w-full border-2 border-slate-200 rounded-lg p-2 pl-6 text-sm font-bold focus:border-blue-500 focus:outline-none" step="0.01">
+                    </div>
+                </div>`;
+            });
+        }
+
+        function cerrarConfig() {
+            document.getElementById('modal-config').style.display = 'none';
+        }
+
+        function guardarConfig() {
+            // Guardar Ingreso
+            db.ingreso = parseFloat(document.getElementById('edit-ingreso').value) || 0;
+
+            // Guardar Fijos
+            db.fijos.forEach((f, index) => {
+                f.nombre = document.getElementById(`ef-nombre-${index}`).value || 'Categoría';
+                f.monto = parseFloat(document.getElementById(`ef-monto-${index}`).value) || 0;
+            });
+
+            // Guardar Variables
+            db.variables.forEach((v, index) => {
+                v.nombre = document.getElementById(`ev-nombre-${index}`).value || 'Categoría';
+                v.limite = parseFloat(document.getElementById(`ev-limite-${index}`).value) || 0;
+            });
+
+            renderUI();
+            cerrarConfig();
+        }
+
+        // Iniciar
+        renderUI();
     </script>
 </body>
 </html>
