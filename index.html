@@ -3,198 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budgety - Control y Dashboard</title>
+    <title>Budgety - Premium Banking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .pb-safe { padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
-        .tab-active { color: #2563eb; font-weight: 900; }
-        .tab-inactive { color: #64748b; font-weight: 500; }
+        .tab-active { color: #003c71; font-weight: 900; }
+        .tab-inactive { color: #94a3b8; font-weight: 500; }
+        /* Fondo con textura sutil estilo app bancaria */
+        body {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans pb-24">
-    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg relative overflow-x-hidden">
+<body class="min-h-screen font-sans pb-24 text-slate-800">
+    <div class="max-w-md mx-auto min-h-screen relative overflow-x-hidden shadow-2xl bg-slate-50/80 backdrop-blur-sm">
         
         <!-- ========================================== -->
-        <!-- TAB 1: DASHBOARD Y METAS                   -->
+        <!-- TAB 1: DASHBOARD (CUENTAS)                 -->
         <!-- ========================================== -->
         <div id="view-dash" class="block animate-fade-in">
-            <!-- Header Dashboard -->
-            <div class="bg-slate-900 text-white p-6 rounded-b-3xl shadow-xl">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h1 class="text-2xl font-bold text-blue-400">Budgety</h1>
-                        <p class="text-xs text-slate-400">Dashboard Semanal</p>
+            <!-- Header Bancario (Azul Profundo) -->
+            <div class="bg-gradient-to-br from-[#003c71] via-[#004e92] to-[#002b54] text-white p-6 rounded-b-[2.5rem] shadow-[0_10px_25px_-5px_rgba(0,60,113,0.5)] relative overflow-hidden">
+                <!-- Círculos decorativos en el fondo del header -->
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -mr-10 -mt-10 blur-xl"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-400 opacity-10 rounded-full -ml-10 -mb-10 blur-lg"></div>
+
+                <!-- Nav Top -->
+                <div class="flex justify-between items-center mb-6 relative z-10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30 shadow-inner">
+                            <span class="font-bold text-lg">JS</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-blue-200 uppercase tracking-widest font-semibold">Bienvenido</p>
+                            <h1 class="text-lg font-bold">Hola, Jomar</h1>
+                        </div>
                     </div>
-                    <button onclick="abrirConfig()" class="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">
-                        <i data-lucide="settings" class="w-5 h-5 text-slate-300"></i>
-                    </button>
+                    <div class="flex gap-2">
+                        <button class="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
+                            <i data-lucide="bell" class="w-5 h-5 text-white"></i>
+                        </button>
+                        <button onclick="abrirConfig()" class="p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md">
+                            <i data-lucide="settings" class="w-5 h-5 text-white"></i>
+                        </button>
+                    </div>
                 </div>
                 
-                <!-- El Metro (Gauge) -->
-                <div class="bg-white p-5 rounded-2xl shadow-inner text-center relative overflow-hidden">
-                    <h3 class="text-slate-800 font-black text-sm uppercase tracking-widest mb-1">Termómetro de Gastos</h3>
-                    <p class="text-xs text-slate-500 mb-4">Uso de tu presupuesto variable (Bregables)</p>
-                    
-                    <!-- Barra de 3 colores -->
-                    <div class="relative w-full h-6 bg-slate-200 rounded-full overflow-hidden flex">
-                        <div class="w-[60%] h-full bg-emerald-500"></div>
-                        <div class="w-[25%] h-full bg-amber-400"></div>
-                        <div class="w-[15%] h-full bg-red-500"></div>
-                        
-                        <!-- Marcador de Posición -->
-                        <div id="gauge-marker" class="absolute top-0 bottom-0 w-1.5 bg-slate-900 shadow-md transition-all duration-700 ease-out z-10 rounded-full" style="left: 0%;"></div>
+                <!-- Tarjeta Digital (Balance) -->
+                <div class="glass-card p-5 rounded-2xl relative z-10 shadow-lg mt-2">
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-xs text-blue-100 font-medium">Cuenta Semanal Disponible</p>
+                        <i data-lucide="wifi" class="w-5 h-5 text-white/50 rotate-90"></i>
                     </div>
-                    
-                    <div class="flex justify-between text-[10px] font-bold text-slate-400 mt-2 uppercase">
-                        <span>Seguro (Verde)</span>
-                        <span>Alerta (Amarillo)</span>
-                        <span>Peligro (Rojo)</span>
-                    </div>
-
-                    <div class="mt-4 border-t border-slate-100 pt-3">
-                        <p class="text-3xl font-black text-slate-800" id="dash-porcentaje">0%</p>
-                        <p class="text-xs text-slate-500 font-bold" id="dash-texto-estado">¡Excelente inicio!</p>
+                    <h2 class="text-4xl font-black tracking-tight mb-1" id="dash-balance">$0.00</h2>
+                    <div class="flex justify-between items-end mt-4">
+                        <p class="text-xs text-blue-200 font-mono">**** **** **** 2026</p>
+                        <p class="text-[10px] bg-white/20 px-2 py-1 rounded text-white font-bold tracking-widest uppercase">Activa</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Panel de Metas 40/40/20 -->
-            <div class="p-6">
-                <h3 class="text-slate-800 font-black mb-4 flex items-center text-sm uppercase tracking-wider">
-                    <i data-lucide="target" class="w-5 h-5 mr-2 text-blue-500"></i> Metas: Regla 40/40/20
-                </h3>
-                
-                <div class="grid grid-cols-1 gap-4">
-                    <!-- Sobrante Libre -->
-                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex justify-between items-center">
-                        <div>
-                            <p class="text-xs font-bold text-blue-600 uppercase">Sobrante Libre (Total)</p>
-                            <p class="text-2xl font-black text-blue-900" id="dash-sobrante">$0.00</p>
-                        </div>
-                        <i data-lucide="wallet" class="w-8 h-8 text-blue-300"></i>
+            <!-- Panel de Metas y Termómetro -->
+            <div class="p-6 -mt-4 relative z-20">
+                <!-- Termómetro -->
+                <div class="bg-white p-5 rounded-3xl shadow-xl border border-slate-100 mb-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-slate-800 font-black text-sm uppercase tracking-widest">Flujo de Gastos</h3>
+                        <p class="text-lg font-black text-[#003c71]" id="dash-porcentaje">0%</p>
                     </div>
-
-                    <!-- Distribución -->
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-center">
-                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Ahorro 40%</p>
-                            <p class="text-lg font-black text-emerald-600" id="dash-ahorro">$0.00</p>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-center">
-                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Deudas 40%</p>
-                            <p class="text-lg font-black text-blue-600" id="dash-deuda">$0.00</p>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-center">
-                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Gustos 20%</p>
-                            <p class="text-lg font-black text-purple-600" id="dash-gusto">$0.00</p>
-                        </div>
+                    
+                    <div class="relative w-full h-3 bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+                        <div class="w-[60%] h-full bg-emerald-500"></div>
+                        <div class="w-[25%] h-full bg-amber-400"></div>
+                        <div class="w-[15%] h-full bg-red-500"></div>
+                        <div id="gauge-marker" class="absolute top-0 bottom-0 w-2 bg-slate-800 shadow-md transition-all duration-700 ease-out z-10 rounded-full" style="left: 0%;"></div>
                     </div>
+                    <p class="text-xs text-slate-500 font-bold mt-2 text-right" id="dash-texto-estado">Nivel Seguro</p>
                 </div>
 
-                <div class="mt-6 p-4 bg-slate-900 rounded-2xl text-white text-center">
-                    <p class="text-xs text-slate-400 mb-1">Balance Actual en Cuenta</p>
-                    <p class="text-3xl font-black" id="dash-balance">$0.00</p>
+                <h3 class="text-slate-800 font-black mb-3 text-xs uppercase tracking-widest ml-2">Distribución de Sobrante Libre</h3>
+                
+                <!-- Regla 40/40/20 -->
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="bg-white p-4 rounded-3xl shadow-md border border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                <i data-lucide="piggy-bank" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase">Fondo Ahorro (40%)</p>
+                                <p class="text-sm font-black text-slate-800" id="dash-ahorro">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-3xl shadow-md border border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                <i data-lucide="trending-down" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase">Ataque a Deuda (40%)</p>
+                                <p class="text-sm font-black text-slate-800" id="dash-deuda">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-3xl shadow-md border border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                                <i data-lucide="coffee" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase">Gustos Libres (20%)</p>
+                                <p class="text-sm font-black text-slate-800" id="dash-gusto">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- ========================================== -->
-        <!-- TAB 2: CALCULADORA Y CONTROL               -->
+        <!-- TAB 2: TRANSFERENCIAS Y PAGOS              -->
         <!-- ========================================== -->
         <div id="view-gastos" class="hidden animate-fade-in">
-            <!-- Header Mini -->
-            <div class="bg-slate-900 text-white p-6 rounded-b-3xl shadow-md flex justify-between items-center">
-                <h2 class="text-xl font-bold text-blue-400">Control de Gastos</h2>
+            <div class="bg-white p-6 rounded-b-3xl shadow-sm border-b border-slate-100 flex justify-between items-center sticky top-0 z-30">
+                <h2 class="text-xl font-black text-[#003c71]">Transacciones</h2>
                 <div class="text-right">
-                    <p class="text-[10px] text-slate-400 uppercase">Balance</p>
-                    <p class="text-xl font-black" id="calc-balance">$0.00</p>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Balance</p>
+                    <p class="text-lg font-black text-slate-800" id="calc-balance">$0.00</p>
                 </div>
             </div>
 
-            <!-- Fijos -->
             <div class="p-6 pb-2">
-                <h3 class="text-slate-800 font-black mb-3 text-xs uppercase tracking-wider text-slate-500">Fijos (Restan de tu cuenta)</h3>
+                <h3 class="text-slate-500 font-black mb-3 text-[10px] uppercase tracking-widest ml-1">Débitos Fijos Autorizados</h3>
                 <div id="fijos-container" class="space-y-3"></div>
             </div>
 
-            <!-- Variables -->
             <div class="p-6 pt-2 pb-10" id="variables-section">
-                <h3 class="text-slate-800 font-black mb-3 text-xs uppercase tracking-wider text-slate-500">Variables (Bregables)</h3>
+                <h3 class="text-slate-500 font-black mb-3 text-[10px] uppercase tracking-widest ml-1">Presupuestos Variables</h3>
                 <div id="variables-container" class="space-y-4"></div>
                 
-                <!-- Reset Button -->
-                <button onclick="resetearSemana()" class="w-full mt-6 text-red-600 font-bold bg-red-50 py-4 rounded-xl border border-red-100 transition active:scale-95">
-                    <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i> Iniciar Nueva Semana
+                <button onclick="resetearSemana()" class="w-full mt-8 text-[#003c71] font-bold bg-blue-50 py-4 rounded-2xl border border-blue-100 transition active:scale-95 shadow-sm">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i> Iniciar Ciclo Semanal
                 </button>
             </div>
         </div>
 
     </div>
 
-    <!-- Floating Action Button (Solo para gastos) -->
-    <button onclick="abrirModalGasto()" class="fixed bottom-24 right-6 bg-blue-600 text-white p-5 rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-transform z-40 flex items-center justify-center">
-        <i data-lucide="plus" class="w-7 h-7"></i>
+    <!-- Floating Action Button -->
+    <button onclick="abrirModalGasto()" class="fixed bottom-24 right-6 bg-gradient-to-r from-[#003c71] to-[#005a9c] text-white p-4 rounded-full shadow-[0_10px_20px_-5px_rgba(0,60,113,0.5)] hover:scale-105 active:scale-95 transition-transform z-40 flex items-center justify-center border-2 border-white/20">
+        <i data-lucide="plus" class="w-6 h-6"></i>
     </button>
 
-    <!-- Bottom Navigation Tabs -->
-    <nav class="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white border-t border-slate-200 flex justify-around p-3 z-50 pb-safe shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
-        <button onclick="switchTab('dash')" id="tab-btn-dash" class="flex flex-col items-center p-2 w-full tab-active transition">
+    <!-- Bottom Navigation Tabs (Estilo App Nativa) -->
+    <nav class="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white border-t border-slate-100 flex justify-around p-2 z-50 pb-safe shadow-[0_-15px_30px_-15px_rgba(0,0,0,0.1)] rounded-t-3xl">
+        <button onclick="switchTab('dash')" id="tab-btn-dash" class="flex flex-col items-center p-3 w-full tab-active transition-colors rounded-2xl hover:bg-slate-50">
             <i data-lucide="layout-dashboard" class="w-6 h-6 mb-1"></i>
-            <span class="text-[10px] uppercase tracking-widest">Dashboard</span>
+            <span class="text-[10px] uppercase tracking-widest">Resumen</span>
         </button>
-        <button onclick="switchTab('gastos')" id="tab-btn-gastos" class="flex flex-col items-center p-2 w-full tab-inactive transition">
-            <i data-lucide="calculator" class="w-6 h-6 mb-1"></i>
-            <span class="text-[10px] uppercase tracking-widest">Control</span>
+        <button onclick="switchTab('gastos')" id="tab-btn-gastos" class="flex flex-col items-center p-3 w-full tab-inactive transition-colors rounded-2xl hover:bg-slate-50">
+            <i data-lucide="arrow-right-left" class="w-6 h-6 mb-1"></i>
+            <span class="text-[10px] uppercase tracking-widest">Movimientos</span>
         </button>
     </nav>
 
     <!-- Modal Nuevo Gasto -->
     <div id="modal-gasto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end justify-center z-50 pb-safe">
-        <div class="bg-white w-full max-w-md rounded-t-3xl p-6 shadow-2xl transition-transform transform translate-y-full" id="modal-content-gasto">
+        <div class="bg-white w-full max-w-md rounded-t-[2.5rem] p-8 shadow-2xl transition-transform transform translate-y-full" id="modal-content-gasto">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black text-slate-800">Registrar Gasto</h3>
-                <button onclick="cerrarModalGasto()" class="p-2 bg-slate-100 rounded-full text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="text-xl font-black text-slate-800">Registrar Pago</h3>
+                <button onclick="cerrarModalGasto()" class="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
             <div class="relative mb-6">
                 <span class="absolute left-4 top-4 text-slate-400 font-black text-2xl">$</span>
-                <input type="number" id="monto-gasto" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 pl-12 text-2xl font-black text-slate-800 focus:outline-none focus:border-blue-500" placeholder="0.00" step="0.01">
+                <input type="number" id="monto-gasto" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 pl-12 text-3xl font-black text-slate-800 focus:outline-none focus:border-[#003c71] focus:ring-4 focus:ring-blue-50 transition-all shadow-inner" placeholder="0.00" step="0.01">
             </div>
 
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Categoría</label>
-            <div id="botones-categorias" class="grid grid-cols-2 gap-3 mb-6"></div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Seleccione Cuenta Origen</label>
+            <div id="botones-categorias" class="grid grid-cols-2 gap-3 mb-8"></div>
 
-            <button onclick="guardarGasto()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-slate-800 shadow-lg active:scale-95 transition mb-4">
-                Restar Gasto
+            <button onclick="guardarGasto()" class="w-full bg-gradient-to-r from-[#003c71] to-[#005a9c] text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition mb-4">
+                Procesar Transacción
             </button>
         </div>
     </div>
 
-    <!-- Modal Configuración (Oculto por defecto) -->
-    <!-- [El modal de configuración sigue idéntico para que puedas editar tus límites] -->
+    <!-- Modal Configuración -->
     <div id="modal-config" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
-                <h3 class="text-lg font-black text-slate-800">Editor</h3>
-                <button onclick="cerrarConfig()" class="p-2 bg-slate-200 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-[2rem]">
+                <h3 class="text-lg font-black text-slate-800">Parámetros de Cuenta</h3>
+                <button onclick="cerrarConfig()" class="p-2 bg-white shadow-sm rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 space-y-6">
-                <div>
-                    <label class="block text-xs font-black text-blue-600 uppercase mb-2">Ingreso Base Semanal</label>
-                    <input type="number" id="edit-ingreso" class="w-full border-2 border-slate-200 rounded-xl p-3 font-bold" step="0.01">
+            <div class="p-6 overflow-y-auto flex-1 space-y-6 bg-slate-50">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Fondo de Ingreso (Semanal)</label>
+                    <input type="number" id="edit-ingreso" class="w-full border border-slate-200 rounded-xl p-3 font-bold bg-slate-50" step="0.01">
                 </div>
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <label class="block text-xs font-black text-slate-600 uppercase mb-3">Fijos (Intocables)</label>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-3">Compromisos Fijos</label>
                     <div id="edit-fijos-container" class="space-y-3"></div>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <label class="block text-xs font-black text-slate-600 uppercase mb-3">Variables (Límites)</label>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-3">Límites Variables</label>
                     <div id="edit-variables-container" class="space-y-3"></div>
                 </div>
             </div>
-            <div class="p-5 border-t bg-white rounded-b-3xl">
-                <button onclick="guardarConfig()" class="w-full bg-emerald-500 text-white font-black py-4 rounded-2xl">Guardar</button>
+            <div class="p-6 border-t border-slate-100 bg-white rounded-b-[2rem]">
+                <button onclick="guardarConfig()" class="w-full bg-[#003c71] text-white font-black py-4 rounded-2xl shadow-md">Actualizar Parámetros</button>
             </div>
         </div>
     </div>
@@ -209,9 +238,9 @@
                 { id: 'f2', nombre: 'Fondo Lancer', monto: 15.00, pagado: false }
             ],
             variables: [
-                { id: 'v1', nombre: 'Súper / Costco', limite: 68.75, gastado: 0, color: 'bg-emerald-500' },
-                { id: 'v2', nombre: 'Comida Fuera', limite: 43.30, gastado: 0, color: 'bg-orange-500' },
-                { id: 'v3', nombre: 'Gasolina', limite: 15.00, gastado: 0, color: 'bg-indigo-500' },
+                { id: 'v1', nombre: 'Costco / Súper', limite: 68.75, gastado: 0, color: 'bg-emerald-500' },
+                { id: 'v2', nombre: 'Restaurantes', limite: 43.30, gastado: 0, color: 'bg-orange-500' },
+                { id: 'v3', nombre: 'Gasolina', limite: 15.00, gastado: 0, color: 'bg-blue-500' },
                 { id: 'v4', nombre: 'Suscripciones', limite: 12.50, gastado: 0, color: 'bg-purple-500' }
             ]
         };
@@ -234,7 +263,6 @@
         }
 
         function renderUI() {
-            // Cálculos Globales
             let totalFijosLim = db.fijos.reduce((sum, f) => sum + f.monto, 0);
             let totalFijosPagados = db.fijos.filter(f => f.pagado).reduce((sum, f) => sum + f.monto, 0);
             let totalVarLim = db.variables.reduce((sum, v) => sum + v.limite, 0);
@@ -243,17 +271,13 @@
             let balanceVivo = db.ingreso - totalFijosPagados - totalVarGastado;
             let sobranteTeorico = db.ingreso - totalFijosLim - totalVarLim;
 
-            // Update Balances
             document.getElementById('dash-balance').innerText = `$${balanceVivo.toFixed(2)}`;
             document.getElementById('calc-balance').innerText = `$${balanceVivo.toFixed(2)}`;
 
-            // Update Metas (Dashboard)
-            document.getElementById('dash-sobrante').innerText = `$${sobranteTeorico.toFixed(2)}`;
             document.getElementById('dash-ahorro').innerText = `$${(sobranteTeorico * 0.4).toFixed(2)}`;
             document.getElementById('dash-deuda').innerText = `$${(sobranteTeorico * 0.4).toFixed(2)}`;
             document.getElementById('dash-gusto').innerText = `$${(sobranteTeorico * 0.2).toFixed(2)}`;
 
-            // Lógica del Termómetro (Dashboard)
             let varPercent = totalVarLim > 0 ? (totalVarGastado / totalVarLim) * 100 : 0;
             if(varPercent > 100) varPercent = 100;
             
@@ -263,29 +287,38 @@
             let textoEstado = document.getElementById('dash-texto-estado');
             let porcTxt = document.getElementById('dash-porcentaje');
             if(varPercent < 60) {
-                textoEstado.innerText = "¡Excelente! Estás en verde.";
-                textoEstado.className = "text-xs font-black text-emerald-600";
-                porcTxt.className = "text-3xl font-black text-emerald-600";
+                textoEstado.innerText = "Estado Financiero Óptimo";
+                textoEstado.className = "text-[10px] uppercase tracking-widest font-bold text-emerald-600 mt-1";
+                porcTxt.className = "text-xl font-black text-[#003c71]";
             } else if (varPercent < 85) {
-                textoEstado.innerText = "Precaución, bajando ritmo.";
-                textoEstado.className = "text-xs font-black text-amber-500";
-                porcTxt.className = "text-3xl font-black text-amber-500";
+                textoEstado.innerText = "Vigilancia Recomendada";
+                textoEstado.className = "text-[10px] uppercase tracking-widest font-bold text-amber-500 mt-1";
+                porcTxt.className = "text-xl font-black text-amber-500";
             } else {
-                textoEstado.innerText = "¡Peligro! Límite cercano.";
-                textoEstado.className = "text-xs font-black text-red-600";
-                porcTxt.className = "text-3xl font-black text-red-600";
+                textoEstado.innerText = "Límite Excedido";
+                textoEstado.className = "text-[10px] uppercase tracking-widest font-bold text-red-600 mt-1";
+                porcTxt.className = "text-xl font-black text-red-600";
             }
 
-            // Renderizar Control (Tab 2)
             const contenedorFijos = document.getElementById('fijos-container');
             contenedorFijos.innerHTML = '';
             db.fijos.forEach((fijo, i) => {
-                const btnClase = fijo.pagado ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-slate-200 text-slate-700';
-                const checkIcon = fijo.pagado ? '<i data-lucide="check-circle" class="w-5 h-5 text-emerald-500"></i>' : '<i data-lucide="circle" class="w-5 h-5 text-slate-300"></i>';
+                const isPaid = fijo.pagado;
+                const cardClass = isPaid ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100 shadow-md';
+                const iconClass = isPaid ? 'text-slate-400 bg-slate-200' : 'text-[#003c71] bg-blue-50';
+                
                 contenedorFijos.innerHTML += `
-                <div onclick="toggleFijo(${i})" class="flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer shadow-sm ${btnClase}">
-                    <div class="flex items-center gap-3">${checkIcon}<span class="font-bold text-sm ${fijo.pagado ? 'line-through opacity-70' : ''}">${fijo.nombre}</span></div>
-                    <span class="font-black text-sm">$${fijo.monto.toFixed(2)}</span>
+                <div onclick="toggleFijo(${i})" class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${cardClass}">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center ${iconClass}">
+                            <i data-lucide="${isPaid ? 'check' : 'arrow-up-right'}" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-sm block ${isPaid ? 'text-slate-400 line-through' : 'text-slate-700'}">${fijo.nombre}</span>
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">${isPaid ? 'Completado' : 'Pendiente'}</span>
+                        </div>
+                    </div>
+                    <span class="font-black text-sm ${isPaid ? 'text-slate-400' : 'text-[#003c71]'}">$${fijo.monto.toFixed(2)}</span>
                 </div>`;
             });
 
@@ -298,25 +331,28 @@
                 let isAlert = disp < 0;
                 let pct = Math.min((v.gastado / v.limite) * 100, 100) || 0;
                 let col = isAlert ? 'bg-red-500' : v.color;
-                let txtCol = isAlert ? 'text-red-600' : 'text-slate-700';
-
+                
                 contenedorVar.innerHTML += `
-                <div>
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="font-bold text-sm text-slate-700">${v.nombre}</span>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <span class="font-bold text-sm text-slate-700 block">${v.nombre}</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Límite: $${v.limite.toFixed(2)}</span>
+                        </div>
                         <div class="text-right">
-                            <span class="font-black text-lg ${txtCol}">$${disp}</span>
+                            <span class="font-black text-lg ${isAlert ? 'text-red-600' : 'text-slate-800'}">$${disp}</span>
                         </div>
                     </div>
-                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                         <div class="${col} h-full transition-all duration-500" style="width: ${pct}%"></div>
                     </div>
                 </div>`;
 
                 contBotones.innerHTML += `
-                <button onclick="seleccionarCatModal(${i})" class="cat-btn bg-slate-50 border-2 border-slate-200 p-3 rounded-xl text-left active:scale-95">
-                    <span class="block font-bold text-slate-700 text-sm truncate">${v.nombre}</span>
-                    <span class="block text-xs font-black ${txtCol}">$${disp} libres</span>
+                <button onclick="seleccionarCatModal(${i})" class="cat-btn bg-white border border-slate-200 p-4 rounded-2xl text-left active:bg-slate-50 transition-colors shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full ${v.color}"></div>
+                    <span class="block font-bold text-slate-700 text-sm truncate pl-2">${v.nombre}</span>
+                    <span class="block text-[11px] font-black ${isAlert ? 'text-red-500' : 'text-slate-500'} mt-1 pl-2">Disponible: $${disp}</span>
                 </button>`;
             });
 
@@ -337,18 +373,23 @@
         }
         function seleccionarCatModal(i) {
             catSeleccionada = i;
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.replace('border-blue-500', 'border-slate-200'));
-            document.querySelectorAll('.cat-btn')[i].classList.replace('border-slate-200', 'border-blue-500');
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.replace('border-[#003c71]', 'border-slate-200');
+                btn.classList.replace('ring-2', 'ring-0');
+            });
+            let btn = document.querySelectorAll('.cat-btn')[i];
+            btn.classList.replace('border-slate-200', 'border-[#003c71]');
+            btn.classList.add('ring-2', 'ring-blue-100');
         }
         function guardarGasto() {
             let m = parseFloat(document.getElementById('monto-gasto').value);
-            if(isNaN(m) || m <= 0) return alert('Ingresa un monto.');
-            if(catSeleccionada === null) return alert('Selecciona categoría.');
+            if(isNaN(m) || m <= 0) return alert('Por favor, ingrese un monto válido.');
+            if(catSeleccionada === null) return alert('Por favor, seleccione la cuenta de origen.');
             db.variables[catSeleccionada].gastado += m;
             renderUI(); cerrarModalGasto();
         }
         function resetearSemana() {
-            if(confirm('¿Iniciar semana? Fijos pasarán a "No pagados" y variables a $0.')) {
+            if(confirm('¿Desea iniciar un nuevo ciclo semanal? Esto reiniciará las transacciones y pagos.')) {
                 db.fijos.forEach(f => f.pagado = false);
                 db.variables.forEach(v => v.gastado = 0);
                 renderUI();
@@ -358,9 +399,9 @@
             document.getElementById('modal-config').style.display = 'flex';
             document.getElementById('edit-ingreso').value = db.ingreso;
             let cF = document.getElementById('edit-fijos-container'); cF.innerHTML = '';
-            db.fijos.forEach((f, i) => cF.innerHTML += `<div class="flex gap-2 mb-2"><input type="text" id="ef-n-${i}" value="${f.nombre}" class="flex-1 border p-2 text-sm rounded"><input type="number" id="ef-m-${i}" value="${f.monto}" class="w-24 border p-2 text-sm rounded" step="0.01"></div>`);
+            db.fijos.forEach((f, i) => cF.innerHTML += `<div class="flex gap-2 mb-2"><input type="text" id="ef-n-${i}" value="${f.nombre}" class="flex-1 border border-slate-200 bg-slate-50 p-3 text-sm rounded-xl font-medium"><input type="number" id="ef-m-${i}" value="${f.monto}" class="w-24 border border-slate-200 bg-slate-50 p-3 text-sm rounded-xl font-bold" step="0.01"></div>`);
             let cV = document.getElementById('edit-variables-container'); cV.innerHTML = '';
-            db.variables.forEach((v, i) => cV.innerHTML += `<div class="flex gap-2 mb-2"><input type="text" id="ev-n-${i}" value="${v.nombre}" class="flex-1 border p-2 text-sm rounded"><input type="number" id="ev-l-${i}" value="${v.limite}" class="w-24 border p-2 text-sm rounded" step="0.01"></div>`);
+            db.variables.forEach((v, i) => cV.innerHTML += `<div class="flex gap-2 mb-2"><input type="text" id="ev-n-${i}" value="${v.nombre}" class="flex-1 border border-slate-200 bg-slate-50 p-3 text-sm rounded-xl font-medium"><input type="number" id="ev-l-${i}" value="${v.limite}" class="w-24 border border-slate-200 bg-slate-50 p-3 text-sm rounded-xl font-bold" step="0.01"></div>`);
         }
         function cerrarConfig() { document.getElementById('modal-config').style.display = 'none'; }
         function guardarConfig() {
